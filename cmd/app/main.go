@@ -17,7 +17,8 @@ var Conn *gorm.DB
 
 func main() {
 	if os.Getenv("APP_ENV") != "production" {
-		if err := godotenv.Load("../../.env"); err != nil {
+		// godotenv.Load("../../.env")
+		if err := godotenv.Load(); err != nil {
 			log.Fatal("Error loading .env file")
 		}
 	}

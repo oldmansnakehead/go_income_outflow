@@ -9,5 +9,6 @@ import (
 func userRoutes(r *gin.Engine) {
 	userController := controller.User{}
 	userGroup := r.Group("/users")
-	userGroup.POST("", userController.Create)
+	userGroup.POST("", userController.Store)
+	userGroup.POST("/login", userController.Login)
 }
