@@ -1,7 +1,9 @@
 package main
 
 import (
-	"go_income_outflow/databases"
+	"go_income_outflow/db"
+	"go_income_outflow/db/migrations"
+	"go_income_outflow/routes"
 	"log"
 	"os"
 
@@ -20,11 +22,16 @@ func main() {
 		}
 	}
 
-	databases.ConnectDB()
+	db.ConnectDB()
+	migrations.Migrate()
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 
 	r := gin.Default()
 	r.Use(cors.New(corsConfig))
+
+	routes.InitialRoute(r)
+
+	r.Run(":" + os.Getenv("PORT"))
 }
