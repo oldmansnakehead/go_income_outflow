@@ -28,7 +28,7 @@ go.work
 /app
 /tmp
 /.air.toml
-/cmd/tmp
+/cmd/app/tmp
 *.env
 
 # End of https://www.toptal.com/developers/gitignore/api/go
