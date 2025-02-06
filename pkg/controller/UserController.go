@@ -109,3 +109,11 @@ func (uc *User) Login(ctx *gin.Context) {
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 }
+
+func (uc *User) TestAuth(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"notice": user,
+	})
+}

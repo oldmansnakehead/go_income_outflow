@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"go_income_outflow/middleware"
 	"go_income_outflow/pkg/controller"
 
 	"github.com/gin-gonic/gin"
@@ -11,4 +12,5 @@ func userRoutes(r *gin.Engine) {
 	userGroup := r.Group("/users")
 	userGroup.POST("", userController.Store)
 	userGroup.POST("/login", userController.Login)
+	userGroup.POST("/test-auth", middleware.Auth, userController.TestAuth)
 }
