@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 	"go_income_outflow/db"
-	"go_income_outflow/entities"
+	"go_income_outflow/pkg/model"
 	"net/http"
 	"os"
 	"time"
@@ -30,7 +30,7 @@ func Auth(ctx *gin.Context) {
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
-		var user entities.User
+		var user model.User
 		db.Conn.First(&user, claims["sub"])
 		if user.ID == 0 {
 			ctx.AbortWithStatus(http.StatusUnauthorized)

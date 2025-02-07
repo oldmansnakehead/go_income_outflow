@@ -8,5 +8,10 @@ import (
 func Migrate() {
 	db.Conn.AutoMigrate(
 		&entities.User{},
+		&entities.Account{},
+		&entities.CreditCardDebt{},
+		&entities.CreditCard{},
+		&entities.TransactionCategory{},
+		&entities.Transaction{},
 	)
 }

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"go_income_outflow/db"
-	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model"
 	"net/http"
 	"os"
@@ -75,7 +74,7 @@ func (uc *User) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	user := entities.User{}
+	user := model.User{}
 	db.Conn.First(&user, "email = ?", body.Email)
 
 	if user.ID == 0 {

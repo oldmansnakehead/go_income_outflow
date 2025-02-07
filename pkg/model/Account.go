@@ -4,10 +4,11 @@ import (
 	"go_income_outflow/pkg/model/common"
 )
 
-type User struct {
+type Account struct {
 	common.Model
 
-	Email    string
-	Password string
-	Name     string
+	Name string
+
+	UserID uint
+	User   User
 }

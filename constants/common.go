@@ -1,9 +1,9 @@
 package constants
 
-const (
-/*
-ENUM_ROLE_ADMIN = "admin"
+type TransactionType string
 
-ENUM_ROLE_USER = "user"
-*/
+const (
+	INCOME  TransactionType = "INCOME"
+	EXPENSE TransactionType = "EXPENSE"
+	ANY     TransactionType = "ANY"
 )
