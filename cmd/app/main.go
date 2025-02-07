@@ -23,7 +23,7 @@ func main() {
 		}
 	}
 
-	db.ConnectDB()
+	db := db.ConnectDB()
 	migrations.Migrate()
 
 	corsConfig := cors.DefaultConfig()
@@ -32,7 +32,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.New(corsConfig))
 
-	routes.InitialRoute(r)
+	routes.InitialRoute(r, db)
 
 	r.Run(":" + os.Getenv("PORT"))
 }

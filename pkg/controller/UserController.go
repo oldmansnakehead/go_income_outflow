@@ -1,27 +1,25 @@
 package controller
 
 import (
-	"go_income_outflow/db"
-	"go_income_outflow/pkg/model"
+	"go_income_outflow/pkg/service"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct{}
-
-func (uc *User) Index(ctx *gin.Context) {
+type UserController struct {
+	service *service.UserService
 }
 
-func (u *User) Store(ctx *gin.Context) {
-	var body struct {
-		Email    string
-		Password string
-	}
+func NewUserController(service *service.UserService) *UserController {
+	return &UserController{service: service}
+}
+
+func (uc *UserController) Index(ctx *gin.Context) {
+}
+
+func (u *UserController) Store(ctx *gin.Context) {
+	var body service.CreateUserBody
 
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -30,20 +28,10 @@ func (u *User) Store(ctx *gin.Context) {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	err := u.service.CreateUser(&body)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to hash password",
-		})
-		return
-	}
-
-	user := model.User{Email: body.Email, Password: string(hash)}
-	result := db.Conn.Create(&user)
-
-	if result.Error != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create user",
+			"error": err.Error(),
 		})
 		return
 	}
@@ -53,63 +41,48 @@ func (u *User) Store(ctx *gin.Context) {
 	})
 }
 
-func (uc *User) Show(ctx *gin.Context) {
+func (uc *UserController) Show(ctx *gin.Context) {
 }
 
-func (uc *User) Update(ctx *gin.Context) {
+func (uc *UserController) Update(ctx *gin.Context) {
 }
 
-func (uc *User) Destroy(ctx *gin.Context) {
+func (uc *UserController) Destroy(ctx *gin.Context) {
 }
 
-func (uc *User) Login(ctx *gin.Context) {
+func (u *UserController) Login(ctx *gin.Context) {
 	var body struct {
 		Email    string
 		Password string
 	}
 
+	// รับข้อมูลจาก body
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
 		})
 		return
 	}
-	user := model.User{}
-	db.Conn.First(&user, "email = ?", body.Email)
 
-	if user.ID == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Invalid email",
-		})
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Invalid password",
-		})
-		return
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	// เรียกใช้ service เพื่อทำการล็อกอิน
+	token, err := u.service.Login(body.Email, body.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create token",
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
 
+	// ส่ง response พร้อม token
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("Authorization", token, 3600*24*30, "", "", false, true)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"notice": "Login successful",
+	})
 }
 
-func (uc *User) TestAuth(ctx *gin.Context) {
+func (uc *UserController) TestAuth(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 
 	ctx.JSON(http.StatusOK, gin.H{

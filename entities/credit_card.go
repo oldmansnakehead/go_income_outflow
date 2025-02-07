@@ -15,5 +15,5 @@ type CreditCard struct {
 	DueDate     time.Time `gorm:"not null"`           // วันที่ครบกำหนดชำระ
 
 	UserID uint `gorm:"not null"`
-	User   User
+	User   User `gorm:"foreignKey:UserID"`
 }

@@ -16,7 +16,7 @@ var (
 	once sync.Once
 )
 
-func ConnectDB() {
+func ConnectDB() (c *gorm.DB) {
 	once.Do(func() {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s search_path=%s",
@@ -39,6 +39,8 @@ func ConnectDB() {
 
 		Conn = db
 	})
+
+	return Conn
 }
 
 /* func Migrate() {

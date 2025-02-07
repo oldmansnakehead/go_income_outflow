@@ -1,11 +1,10 @@
 package model
 
-import (
-	"go_income_outflow/pkg/model/common"
-)
+import "time"
 
 type User struct {
-	common.Model
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	Email    string
 	Password string

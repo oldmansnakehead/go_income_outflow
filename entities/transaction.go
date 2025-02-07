@@ -23,6 +23,6 @@ type Transaction struct {
 	CategoryID uint                `gorm:"not null"`
 	Category   TransactionCategory `gorm:"foreignKey:CategoryID"`
 
-	AccountID uint `gorm:"not null"`
-	Account   Account
+	AccountID uint    `gorm:"not null"`
+	Account   Account `gorm:"foreignKey:AccountID"`
 }
