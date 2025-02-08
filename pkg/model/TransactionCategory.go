@@ -9,3 +9,12 @@ type TransactionCategory struct {
 
 	Name string
 }
+
+type TransactionCategoryRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+type TransactionCategoryResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}

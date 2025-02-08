@@ -9,14 +9,18 @@ import (
 	"go_income_outflow/pkg/repository"
 )
 
-// interface แทนการนำเข้าของข้อมูล
-type AccountServiceUseCase interface {
-	CreateAccount(account *entities.Account) error
-}
+type (
+	// interface แทนการนำเข้าของข้อมูล
+	AccountServiceUseCase interface {
+		CreateAccount(account *entities.Account) error
+		CreateAccountWithRelations(account *entities.Account, relations []string) error
+		GetAccountWithRelations(account *entities.Account, relations []string) error
+	}
 
-type AccountService struct {
-	repo repository.AccountRepository
-}
+	AccountService struct {
+		repo repository.AccountRepository
+	}
+)
 
 func NewAccountService(repo repository.AccountRepository) *AccountService {
 	return &AccountService{repo: repo}
@@ -24,4 +28,12 @@ func NewAccountService(repo repository.AccountRepository) *AccountService {
 
 func (s *AccountService) CreateAccount(account *entities.Account) error {
 	return s.repo.Create(account)
+}
+
+func (s *AccountService) CreateAccountWithRelations(account *entities.Account, relations []string) error {
+	return s.repo.CreateWithRelations(account, relations)
+}
+
+func (s *AccountService) GetAccountWithRelations(account *entities.Account, relations []string) error {
+	return s.repo.FindAccountWithRelations(account, relations)
 }

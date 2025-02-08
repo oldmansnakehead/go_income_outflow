@@ -35,7 +35,7 @@ func (ac *AccountController) Store(ctx *gin.Context) {
 		UserID: form.UserID,
 	}
 
-	if err := ac.service.CreateAccount(&account); err != nil {
+	if err := ac.service.CreateAccountWithRelations(&account, []string{"User"}); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create account",
 		})
@@ -44,7 +44,7 @@ func (ac *AccountController) Store(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "Account created successfully",
-		"data":    account,
+		"data":    (&model.Account{}).EntitiesToModel(&account).ToResponse(), // keyword = struct literal
 	})
 }
 
