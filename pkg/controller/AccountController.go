@@ -44,7 +44,7 @@ func (ac *AccountController) Store(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "Account created successfully",
-		"data":    (&model.Account{}).EntitiesToModel(&account).ToResponse(), // keyword = struct literal
+		"data":    (&model.Account{}).Response(&account), // keyword = struct literal
 	})
 }
 

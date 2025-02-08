@@ -53,3 +53,7 @@ func (ac *Account) ToResponse() AccountResponse {
 		},
 	}
 }
+
+func (ac *Account) Response(account *entities.Account) AccountResponse {
+	return ac.EntitiesToModel(account).ToResponse()
+}
