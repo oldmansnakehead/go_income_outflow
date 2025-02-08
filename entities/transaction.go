@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// ใช้คำสั่ง CREATE TYPE transaction_type AS ENUM ('INCOME', 'EXPENSE', 'ANY'); ใน db ก่อน migrate
+// ต้องการ Enum type transaction_type
 
 type Transaction struct {
 	gorm.Model
