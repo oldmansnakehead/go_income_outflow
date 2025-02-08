@@ -5,26 +5,29 @@ import (
 	"go_income_outflow/pkg/model/common"
 )
 
-type Account struct {
-	common.Model
+type (
+	Account struct {
+		common.Model
 
-	Name string
+		Name string
 
-	UserID uint
-	User   User `gorm:"foreignKey:UserID"`
-}
+		UserID uint
+		User   User `gorm:"foreignKey:UserID"`
+	}
 
-type AccountRequest struct {
-	Name   string `json:"name" binding:"required"`
-	UserID uint   `json:"user_id"`
-}
+	AccountRequest struct {
+		Name   string   `json:"name" binding:"required"`
+		UserID uint     `json:"user_id"`
+		With   []string `json:"with"`
+	}
 
-type AccountResponse struct {
-	ID     uint         `json:"id"`
-	Name   string       `json:"name"`
-	UserID uint         `json:"user_id"`
-	User   UserResponse `json:"user"`
-}
+	AccountResponse struct {
+		ID     uint         `json:"id"`
+		Name   string       `json:"name"`
+		UserID uint         `json:"user_id"`
+		User   UserResponse `json:"user"`
+	}
+)
 
 func (ac *Account) EntitiesToModel(account *entities.Account) *Account {
 	ac.ID = account.ID
