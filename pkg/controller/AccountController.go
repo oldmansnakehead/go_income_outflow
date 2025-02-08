@@ -57,20 +57,13 @@ func (ac *AccountController) Show(ctx *gin.Context) {
 		With []string `json:"with" query:"with"` // รับจากทั้ง body และ query
 	}
 
-	withArray := ctx.QueryArray("with[]")
-	if len(withArray) > 0 {
-		form.With = withArray
-	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid relations format",
-		})
-		return
-	}
-
 	// Bind ข้อมูลจาก JSON body (ถ้ามี)
 	if err := ctx.ShouldBindJSON(&form); err != nil {
-		// ถ้าผิดพลาดในการ bind ให้รับข้อมูลจาก query parameter แทน
-		if err := ctx.ShouldBindQuery(&form); err != nil {
+		// ถ้าผิดพลาดในการ bind JSON ให้รับข้อมูลจาก query parameter แทน
+		withArray := ctx.QueryArray("with[]")
+		if len(withArray) > 0 {
+			form.With = withArray
+		} else {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"error": "Invalid relations format",
 			})
