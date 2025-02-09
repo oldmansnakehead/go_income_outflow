@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func SingleOrMultiple(query *gorm.DB, field string, filter interface{}) *gorm.DB {
+func WhereConditions(query *gorm.DB, field string, filter interface{}) *gorm.DB {
 	switch v := filter.(type) {
 	case string:
 		if v == "null" {
@@ -17,7 +17,7 @@ func SingleOrMultiple(query *gorm.DB, field string, filter interface{}) *gorm.DB
 		return query.Where(field, v)
 	case []string:
 		// ถ้า filter เป็น array
-		query = query.Where("1 = 1") // เริ่ม query ด้วยเงื่อนไขพื้นฐาน
+		query = query.Where("1 = 1") // เริ่ม query ด้วยเงื่อนไขพื้นฐาน 1=1 เป็นจริงอยู่แล้ว ต้องการเอา instance เพื่อใช้เงื่อนไขอื่นต่อ เพราะ or ถ้าไม่มีการใช้ where ก่อนจะไม่ทำงาน
 		for _, f := range v {
 			if f == "null" {
 				query = query.Or(field + " IS NULL")
@@ -27,7 +27,7 @@ func SingleOrMultiple(query *gorm.DB, field string, filter interface{}) *gorm.DB
 		}
 		return query
 	default:
-		// ค่าอื่นๆ เช่น integer สามารถขยายได้ตามความต้องการ
+		// ค่าอื่นๆ เช่น integer
 		return query.Where(field, v)
 	}
 }
@@ -58,23 +58,15 @@ func ParseQueryString(ctx *gin.Context) map[string]interface{} {
 }
 
 func WithRelations(query *gorm.DB, relations interface{}) *gorm.DB {
-	// ตรวจสอบ type ของ relations
-	fmt.Printf("Type of relations: %T\n", relations) // พิมพ์ type ของ relations
-
-	// เช็คว่า relations เป็น string หรือไม่
+	// เช็คว่า type relations
 	switch v := relations.(type) {
 	case string:
-		// ถ้าเป็น string, ให้ preload ค่านั้น
-		fmt.Println("Preloading relation:", v)
 		query = query.Preload(v)
 	case []string:
-		// ถ้าเป็น []string, วนลูปเพื่อ preload แต่ละ relation
 		for _, relation := range v {
-			fmt.Println("Preloading relation:", relation)
 			query = query.Preload(relation)
 		}
 	default:
-		// หากไม่ใช่ string หรือ []string, ให้ไม่ทำอะไร
 		fmt.Println("Invalid type for relations:", v)
 	}
 	return query

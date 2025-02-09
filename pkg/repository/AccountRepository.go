@@ -90,8 +90,8 @@ func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]m
 		query = helpers.WithRelations(query, relations)
 	}
 
-	if field, ok := filters["user_id"]; ok {
-		query = helpers.SingleOrMultiple(query, "user_id", field)
+	if value, ok := filters["user_id"]; ok {
+		query = helpers.WhereConditions(query, "user_id", value)
 	}
 
 	// ดึงข้อมูล
