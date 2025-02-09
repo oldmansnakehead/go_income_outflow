@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func AccountRoutes(r *gin.Engine, db *gorm.DB) {
+func accountRoutes(r *gin.Engine, db *gorm.DB) {
 	accountRepo := repository.NewAccountRepository(db)
 	accountService := service.NewAccountService(accountRepo)
 	accountController := controller.NewAccountController(accountService)

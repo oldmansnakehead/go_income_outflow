@@ -12,33 +12,38 @@ import (
 type (
 	// interface แทนการนำเข้าของข้อมูล
 	AccountServiceUseCase interface {
-		CreateAccount(account *entities.Account, relations []string)
-		GetAccountWithRelations(account *entities.Account, relations []string) error
+		CreateAccount(account *entities.Account, relations []string) error
+		FirstWithRelations(account *entities.Account, relations []string) error
 		UpdateAccount(account *entities.Account, relations []string) error
 		DeleteAccount(account *entities.Account) error
+		GetWithFilters(filters map[string]interface{}) ([]entities.Account, error)
 	}
 
-	AccountService struct {
+	accountService struct {
 		repo repository.AccountRepository
 	}
 )
 
-func NewAccountService(repo repository.AccountRepository) *AccountService {
-	return &AccountService{repo: repo}
+func NewAccountService(repo repository.AccountRepository) AccountServiceUseCase {
+	return &accountService{repo: repo}
 }
 
-func (s *AccountService) CreateAccount(account *entities.Account, relations []string) error {
+func (s *accountService) CreateAccount(account *entities.Account, relations []string) error {
 	return s.repo.Create(account, relations)
 }
 
-func (s *AccountService) GetAccountWithRelations(account *entities.Account, relations []string) error {
-	return s.repo.FindAccountWithRelations(account, relations)
+func (s *accountService) FirstWithRelations(account *entities.Account, relations []string) error {
+	return s.repo.FirstWithRelations(account, relations)
 }
 
-func (s *AccountService) UpdateAccount(account *entities.Account, relations []string) error {
+func (s *accountService) UpdateAccount(account *entities.Account, relations []string) error {
 	return s.repo.Update(account, relations)
 }
 
-func (s *AccountService) DeleteAccount(account *entities.Account) error {
+func (s *accountService) DeleteAccount(account *entities.Account) error {
 	return s.repo.Delete(account)
+}
+
+func (s *accountService) GetWithFilters(filters map[string]interface{}) ([]entities.Account, error) {
+	return s.repo.FindWithFilters(filters)
 }

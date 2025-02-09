@@ -29,34 +29,34 @@ type (
 	}
 )
 
-func (ac *Account) EntitiesToModel(account *entities.Account) *Account {
-	ac.ID = account.ID
-	ac.CreatedAt = account.CreatedAt
-	ac.UpdatedAt = account.UpdatedAt
-	ac.Name = account.Name
-	ac.UserID = account.UserID
-	ac.User = User{
+func (r *Account) EntitiesToModel(account *entities.Account) *Account {
+	r.ID = account.ID
+	r.CreatedAt = account.CreatedAt
+	r.UpdatedAt = account.UpdatedAt
+	r.Name = account.Name
+	r.UserID = account.UserID
+	r.User = User{
 		ID:    account.UserID,
 		Name:  account.User.Name,
 		Email: account.User.Email,
 	}
 
-	return ac
+	return r
 }
 
-func (ac *Account) ToResponse() AccountResponse {
+func (r *Account) ToResponse() AccountResponse {
 	return AccountResponse{
-		ID:     ac.ID,
-		Name:   ac.Name,
-		UserID: ac.UserID,
+		ID:     r.ID,
+		Name:   r.Name,
+		UserID: r.UserID,
 		User: UserResponse{
-			ID:    ac.UserID,
-			Name:  ac.User.Name,
-			Email: ac.User.Email,
+			ID:    r.UserID,
+			Name:  r.User.Name,
+			Email: r.User.Email,
 		},
 	}
 }
 
-func (ac *Account) Response(account *entities.Account) AccountResponse {
-	return ac.EntitiesToModel(account).ToResponse()
+func (r *Account) Response(account *entities.Account) AccountResponse {
+	return r.EntitiesToModel(account).ToResponse()
 }

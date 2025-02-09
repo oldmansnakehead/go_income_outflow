@@ -3,7 +3,9 @@ package repository
 // repo layer ที่ใช้เข้าถึง db
 
 import (
+	"fmt"
 	"go_income_outflow/entities"
+	"go_income_outflow/helpers"
 
 	"gorm.io/gorm"
 )
@@ -11,9 +13,11 @@ import (
 type (
 	AccountRepository interface {
 		Create(account *entities.Account, relations []string) error
-		FindAccountWithRelations(account *entities.Account, relations []string) error
+		FirstWithRelations(account *entities.Account, relations []string) error
 		Update(account *entities.Account, relations []string) error
 		Delete(account *entities.Account) error
+		GetBaseQuery() *gorm.DB
+		FindWithFilters(filters map[string]interface{}) ([]entities.Account, error)
 	}
 
 	accountRepository struct {
@@ -31,7 +35,7 @@ func (r *accountRepository) Create(account *entities.Account, relations []string
 	}
 
 	if len(relations) > 0 {
-		if err := r.FindAccountWithRelations(account, relations); err != nil {
+		if err := r.FirstWithRelations(account, relations); err != nil {
 			return err
 		}
 	}
@@ -39,7 +43,7 @@ func (r *accountRepository) Create(account *entities.Account, relations []string
 	return nil
 }
 
-func (r *accountRepository) FindAccountWithRelations(account *entities.Account, relations []string) error {
+func (r *accountRepository) FirstWithRelations(account *entities.Account, relations []string) error {
 	query := r.db
 	for _, relation := range relations {
 		query = query.Preload(relation)
@@ -58,7 +62,7 @@ func (r *accountRepository) Update(account *entities.Account, relations []string
 	}
 
 	if len(relations) > 0 {
-		if err := r.FindAccountWithRelations(account, relations); err != nil {
+		if err := r.FirstWithRelations(account, relations); err != nil {
 			return err
 		}
 	}
@@ -71,4 +75,30 @@ func (r *accountRepository) Delete(account *entities.Account) error {
 		return err
 	}
 	return nil
+}
+
+func (r *accountRepository) GetBaseQuery() *gorm.DB {
+	return r.db.Model(&entities.Account{})
+}
+
+func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]entities.Account, error) {
+	var accounts []entities.Account
+	query := r.db.Model(&entities.Account{})
+
+	if relations, ok := filters["with"]; ok {
+		query = helpers.WithRelations(query, relations)
+	}
+
+	fmt.Println(filters["with"])
+	/* // วนลูปและใช้ filters ที่เหลือ
+	for field, value := range filters {
+		// ใช้ SingleOrMultiple สำหรับกรองข้อมูล
+		query = helpers.SingleOrMultiple(query, field, value)
+	} */
+
+	// ดึงข้อมูล
+	if err := query.Find(&accounts).Error; err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }

@@ -5,27 +5,48 @@ package controller
 import (
 	"fmt"
 	"go_income_outflow/entities"
+	"go_income_outflow/helpers"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/service"
 	"net/http"
 	"strconv"
 
+	"go_income_outflow/pkg/controller/common"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type AccountController struct {
-	service *service.AccountService
+type (
+	AccountControllerUseCase interface {
+		common.ControllerUseCase
+	}
+	accountController struct {
+		service service.AccountServiceUseCase
+	}
+)
+
+func NewAccountController(service service.AccountServiceUseCase) AccountControllerUseCase {
+	return &accountController{service: service}
 }
 
-func NewAccountController(service *service.AccountService) *AccountController {
-	return &AccountController{service: service}
+func (c *accountController) Index(ctx *gin.Context) {
+	// สร้าง filters map สำหรับส่งไปยัง service ผ่าน helper
+	filters := helpers.ParseQueryString(ctx)
+
+	// เรียกใช้ service เพื่อดึงข้อมูลตาม filters และ preload relations
+	accounts, err := c.service.GetWithFilters(filters)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, accounts)
 }
 
-func (ac *AccountController) Index(ctx *gin.Context) {
-}
-
-func (ac *AccountController) Store(ctx *gin.Context) {
+func (c *accountController) Store(ctx *gin.Context) {
 	var form model.AccountRequest
 	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -37,7 +58,7 @@ func (ac *AccountController) Store(ctx *gin.Context) {
 		UserID: form.UserID,
 	}
 
-	if err := ac.service.CreateAccount(&account, form.With); err != nil {
+	if err := c.service.CreateAccount(&account, form.With); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create account",
 		})
@@ -50,7 +71,7 @@ func (ac *AccountController) Store(ctx *gin.Context) {
 	})
 }
 
-func (ac *AccountController) Show(ctx *gin.Context) {
+func (c *accountController) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	var form struct {
@@ -73,7 +94,7 @@ func (ac *AccountController) Show(ctx *gin.Context) {
 
 	var account entities.Account
 
-	err := ac.service.GetAccountWithRelations(&account, form.With)
+	err := c.service.FirstWithRelations(&account, form.With)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": fmt.Sprintf("Account with ID %s not found", id),
@@ -85,7 +106,7 @@ func (ac *AccountController) Show(ctx *gin.Context) {
 }
 
 // ต้องส่งมาทุก field
-func (ac *AccountController) Update(ctx *gin.Context) {
+func (c *accountController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	uintID, err := strconv.ParseUint(id, 10, 32) // แปลงเป็น uint32 ซึ่งสามารถแปลงเป็น uint ได้
 	if err != nil {
@@ -113,7 +134,7 @@ func (ac *AccountController) Update(ctx *gin.Context) {
 		UserID: form.UserID,
 	}
 
-	if err := ac.service.UpdateAccount(&account, form.With); err != nil {
+	if err := c.service.UpdateAccount(&account, form.With); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to update account",
 		})
@@ -126,7 +147,7 @@ func (ac *AccountController) Update(ctx *gin.Context) {
 	})
 }
 
-func (ac *AccountController) Destroy(ctx *gin.Context) {
+func (c *accountController) Destroy(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	uintID, err := strconv.ParseUint(id, 10, 32) // แปลงเป็น uint32 ซึ่งสามารถแปลงเป็น uint ได้
@@ -140,7 +161,7 @@ func (ac *AccountController) Destroy(ctx *gin.Context) {
 		Model: gorm.Model{ID: uint(uintID)},
 	}
 
-	if ac.service.DeleteAccount(&account); err != nil {
+	if c.service.DeleteAccount(&account); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete account",
 		})

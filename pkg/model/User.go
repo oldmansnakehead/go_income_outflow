@@ -2,6 +2,14 @@ package model
 
 import "time"
 
+type (
+	UserRequest struct {
+		Email    string
+		Password string
+		Name     string
+	}
+)
+
 type User struct {
 	ID        uint
 	CreatedAt time.Time

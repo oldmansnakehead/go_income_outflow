@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"go_income_outflow/entities"
+	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
 	"os"
 	"time"
@@ -11,27 +12,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// interface แทนการนำเข้าของข้อมูล
-type UserServiceUseCase interface {
-	CreateUser(user *entities.User) error
-	Login(email, password string) (string, error)
+type (
+	UserServiceUseCase interface {
+		CreateUser(body *model.UserRequest) error
+		Login(email, password string) (string, error)
+	}
+
+	userService struct {
+		repo repository.UserRepository
+	}
+)
+
+func NewUserService(repo repository.UserRepository) UserServiceUseCase {
+	return &userService{repo: repo}
 }
 
-type UserService struct {
-	repo repository.UserRepository
-}
-
-func NewUserService(repo repository.UserRepository) *UserService {
-	return &UserService{repo: repo}
-}
-
-type CreateUserBody struct {
-	Email    string
-	Password string
-	Name     string
-}
-
-func (s *UserService) CreateUser(body *CreateUserBody) error {
+func (s *userService) CreateUser(body *model.UserRequest) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 	if err != nil {
 		return fmt.Errorf("failed to hash password: %v", err)
@@ -46,7 +42,7 @@ func (s *UserService) CreateUser(body *CreateUserBody) error {
 	return nil
 }
 
-func (s *UserService) Login(email, password string) (string, error) {
+func (s *userService) Login(email, password string) (string, error) {
 	// ค้นหาผู้ใช้จาก email
 	user, err := s.repo.FindUserByEmail(email)
 	if err != nil {

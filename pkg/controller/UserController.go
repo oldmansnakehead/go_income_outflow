@@ -1,25 +1,34 @@
 package controller
 
 import (
+	"go_income_outflow/pkg/controller/common"
+	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UserController struct {
-	service *service.UserService
+type (
+	UserControllerUseCase interface {
+		common.ControllerUseCase
+		TestAuth(ctx *gin.Context)
+		Login(ctx *gin.Context)
+	}
+	userController struct {
+		service service.UserServiceUseCase
+	}
+)
+
+func NewUserController(service service.UserServiceUseCase) UserControllerUseCase {
+	return &userController{service: service}
 }
 
-func NewUserController(service *service.UserService) *UserController {
-	return &UserController{service: service}
+func (uc *userController) Index(ctx *gin.Context) {
 }
 
-func (uc *UserController) Index(ctx *gin.Context) {
-}
-
-func (u *UserController) Store(ctx *gin.Context) {
-	var body service.CreateUserBody
+func (u *userController) Store(ctx *gin.Context) {
+	var body model.UserRequest
 
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -41,16 +50,16 @@ func (u *UserController) Store(ctx *gin.Context) {
 	})
 }
 
-func (uc *UserController) Show(ctx *gin.Context) {
+func (uc *userController) Show(ctx *gin.Context) {
 }
 
-func (uc *UserController) Update(ctx *gin.Context) {
+func (uc *userController) Update(ctx *gin.Context) {
 }
 
-func (uc *UserController) Destroy(ctx *gin.Context) {
+func (uc *userController) Destroy(ctx *gin.Context) {
 }
 
-func (u *UserController) Login(ctx *gin.Context) {
+func (u *userController) Login(ctx *gin.Context) {
 	var body struct {
 		Email    string
 		Password string
@@ -82,7 +91,7 @@ func (u *UserController) Login(ctx *gin.Context) {
 	})
 }
 
-func (uc *UserController) TestAuth(ctx *gin.Context) {
+func (uc *userController) TestAuth(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 
 	ctx.JSON(http.StatusOK, gin.H{
