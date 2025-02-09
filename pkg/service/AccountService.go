@@ -6,6 +6,7 @@ package service
 
 import (
 	"go_income_outflow/entities"
+	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
 )
 
@@ -16,7 +17,7 @@ type (
 		FirstWithRelations(account *entities.Account, relations []string) error
 		UpdateAccount(account *entities.Account, relations []string) error
 		DeleteAccount(account *entities.Account) error
-		GetWithFilters(filters map[string]interface{}) ([]entities.Account, error)
+		GetWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
 	}
 
 	accountService struct {
@@ -44,6 +45,6 @@ func (s *accountService) DeleteAccount(account *entities.Account) error {
 	return s.repo.Delete(account)
 }
 
-func (s *accountService) GetWithFilters(filters map[string]interface{}) ([]entities.Account, error) {
+func (s *accountService) GetWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error) {
 	return s.repo.FindWithFilters(filters)
 }

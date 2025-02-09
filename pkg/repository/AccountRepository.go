@@ -3,10 +3,11 @@ package repository
 // repo layer ที่ใช้เข้าถึง db
 
 import (
-	"fmt"
 	"go_income_outflow/entities"
 	"go_income_outflow/helpers"
+	"go_income_outflow/pkg/model"
 
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ type (
 		Update(account *entities.Account, relations []string) error
 		Delete(account *entities.Account) error
 		GetBaseQuery() *gorm.DB
-		FindWithFilters(filters map[string]interface{}) ([]entities.Account, error)
+		FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
 	}
 
 	accountRepository struct {
@@ -81,7 +82,7 @@ func (r *accountRepository) GetBaseQuery() *gorm.DB {
 	return r.db.Model(&entities.Account{})
 }
 
-func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]entities.Account, error) {
+func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error) {
 	var accounts []entities.Account
 	query := r.db.Model(&entities.Account{})
 
@@ -89,16 +90,18 @@ func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]e
 		query = helpers.WithRelations(query, relations)
 	}
 
-	fmt.Println(filters["with"])
-	/* // วนลูปและใช้ filters ที่เหลือ
-	for field, value := range filters {
-		// ใช้ SingleOrMultiple สำหรับกรองข้อมูล
-		query = helpers.SingleOrMultiple(query, field, value)
-	} */
+	if field, ok := filters["user_id"]; ok {
+		query = helpers.SingleOrMultiple(query, "user_id", field)
+	}
 
 	// ดึงข้อมูล
 	if err := query.Find(&accounts).Error; err != nil {
 		return nil, err
 	}
-	return accounts, nil
+	var response []model.AccountResponse
+	if err := copier.Copy(&response, &accounts); err != nil {
+		return nil, nil
+	}
+
+	return response, nil
 }

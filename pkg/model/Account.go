@@ -3,6 +3,7 @@ package model
 import (
 	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model/common"
+	"time"
 )
 
 type (
@@ -22,7 +23,11 @@ type (
 	}
 
 	AccountResponse struct {
-		ID     uint         `json:"id"`
+		ID        uint      `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+		DeletedAt time.Time `json:"deleted_at"`
+
 		Name   string       `json:"name"`
 		UserID uint         `json:"user_id"`
 		User   UserResponse `json:"user"`
