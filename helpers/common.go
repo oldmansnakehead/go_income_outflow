@@ -130,3 +130,12 @@ func DateRange(query *gorm.DB, fromDate, toDate *string, timeIncluded bool, fiel
 
 	return query
 }
+
+// แปลงจาก string (YYYY-MM-DD) เป็น time.Time
+func ParseDate(dateStr string) (time.Time, error) {
+	parsedDate, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid date format: %v", err)
+	}
+	return parsedDate, nil
+}

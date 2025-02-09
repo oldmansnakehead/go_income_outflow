@@ -20,10 +20,10 @@ type (
 	}
 
 	CreditCardRequest struct {
-		Name        string    `json:"name" binding:"required"`
-		CreditLimit float64   `json:"credit_limit" binding:"required"`
-		Balance     float64   `json:"balance"`
-		DueDate     time.Time `json:"due_date"`
+		Name        string  `json:"name" binding:"required"`
+		CreditLimit float64 `json:"credit_limit" binding:"required"`
+		Balance     float64 `json:"balance"`
+		DueDate     string  `json:"due_date"`
 
 		UserID uint     `json:"user_id" binding:"required"`
 		With   []string `json:"with"`

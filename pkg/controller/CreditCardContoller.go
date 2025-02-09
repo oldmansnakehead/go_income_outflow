@@ -5,11 +5,13 @@ package controller
 import (
 	"fmt"
 	"go_income_outflow/entities"
+	"go_income_outflow/helpers"
 	"go_income_outflow/pkg/controller/common"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/service"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
@@ -31,6 +33,17 @@ func NewCreditCardController(service service.CreditCardServiceUseCase) CreditCar
 }
 
 func (c *creditCardController) Index(ctx *gin.Context) {
+	filters := helpers.ParseQueryString(ctx)
+
+	accounts, err := c.service.GetWithFilters(filters)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, accounts)
 }
 
 func (c *creditCardController) Store(ctx *gin.Context) {
@@ -40,6 +53,18 @@ func (c *creditCardController) Store(ctx *gin.Context) {
 		return
 	}
 
+	var dueDate time.Time
+	if form.DueDate != "" {
+		parsedDate, err := helpers.ParseDate(form.DueDate)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		dueDate = parsedDate
+	}
+
 	var creditCard entities.CreditCard
 	if err := copier.Copy(&creditCard, &form); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -47,6 +72,8 @@ func (c *creditCardController) Store(ctx *gin.Context) {
 		})
 		return
 	}
+
+	creditCard.DueDate = dueDate
 
 	if err := c.service.CreateCreditCard(&creditCard, form.With); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

@@ -2,6 +2,7 @@ package service
 
 import (
 	"go_income_outflow/entities"
+	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
 )
 
@@ -11,6 +12,7 @@ type (
 		FirstWithRelations(creditCard *entities.CreditCard, relations []string) error
 		UpdateCreditCard(creditCard *entities.CreditCard, relations []string) error
 		DeleteCreditCard(creditCard *entities.CreditCard) error
+		GetWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error)
 	}
 
 	creditCardService struct {
@@ -36,4 +38,8 @@ func (s *creditCardService) UpdateCreditCard(creditCard *entities.CreditCard, re
 
 func (s *creditCardService) DeleteCreditCard(creditCard *entities.CreditCard) error {
 	return s.repo.Delete(creditCard)
+}
+
+func (s *creditCardService) GetWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error) {
+	return s.repo.FindWithFilters(filters)
 }

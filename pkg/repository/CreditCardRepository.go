@@ -2,7 +2,10 @@ package repository
 
 import (
 	"go_income_outflow/entities"
+	"go_income_outflow/helpers"
+	"go_income_outflow/pkg/model"
 
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +15,8 @@ type (
 		FirstWithRelations(creditCard *entities.CreditCard, relations []string) error
 		Update(creditCard *entities.CreditCard, relations []string) error
 		Delete(creditCard *entities.CreditCard) error
+		GetBaseQuery() *gorm.DB
+		FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error)
 	}
 
 	creditCardRepository struct {
@@ -69,4 +74,32 @@ func (r *creditCardRepository) Delete(creditCard *entities.CreditCard) error {
 		return err
 	}
 	return nil
+}
+
+func (r *creditCardRepository) GetBaseQuery() *gorm.DB {
+	return r.db.Model(&entities.CreditCard{})
+}
+
+func (r *creditCardRepository) FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error) {
+	var creditCard []entities.CreditCard
+	query := r.db.Model(&entities.CreditCard{})
+
+	if relations, ok := filters["with"]; ok {
+		query = helpers.WithRelations(query, relations)
+	}
+
+	if value, ok := filters["user_id"]; ok {
+		query = helpers.WhereConditions(query, "user_id", value)
+	}
+
+	// ดึงข้อมูล
+	if err := query.Find(&creditCard).Error; err != nil {
+		return nil, err
+	}
+	var response []model.CreditCardResponse
+	if err := copier.Copy(&response, &creditCard); err != nil {
+		return nil, nil
+	}
+
+	return response, nil
 }
