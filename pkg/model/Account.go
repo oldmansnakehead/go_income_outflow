@@ -18,7 +18,7 @@ type (
 
 	AccountRequest struct {
 		Name   string   `json:"name" binding:"required"`
-		UserID uint     `json:"user_id"`
+		UserID uint     `json:"user_id" binding:"required"`
 		With   []string `json:"with"`
 	}
 
@@ -31,6 +31,12 @@ type (
 		Name   string       `json:"name"`
 		UserID uint         `json:"user_id"`
 		User   UserResponse `json:"user"`
+	}
+
+	AccountQuery struct {
+		Name   string   `json:"name"`
+		UserID uint     `json:"user_id"`
+		With   []string `json:"with"`
 	}
 )
 

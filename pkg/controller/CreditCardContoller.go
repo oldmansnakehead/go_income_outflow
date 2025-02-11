@@ -95,16 +95,9 @@ func (c *creditCardController) Show(ctx *gin.Context) {
 		With []string `json:"with" query:"with"`
 	}
 
-	if err := ctx.ShouldBindJSON(&form); err != nil {
-		withArray := ctx.QueryArray("with[]")
-		if len(withArray) > 0 {
-			form.With = withArray
-		} else {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid relations format",
-			})
-			return
-		}
+	withArray := ctx.QueryArray("with[]")
+	if len(withArray) > 0 {
+		form.With = withArray
 	}
 
 	var creditCard entities.CreditCard

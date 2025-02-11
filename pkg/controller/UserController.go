@@ -2,6 +2,7 @@ package controller
 
 import (
 	"go_income_outflow/pkg/controller/common"
+	"go_income_outflow/pkg/custom/request"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/service"
 	"net/http"
@@ -28,16 +29,15 @@ func (uc *userController) Index(ctx *gin.Context) {
 }
 
 func (u *userController) Store(ctx *gin.Context) {
-	var body model.UserRequest
+	var itemReq model.UserRequest
 
-	if ctx.Bind(&body) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	validateCtx := request.NewCustomRequest(ctx)
+	if err := validateCtx.BindJSON(&itemReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := u.service.CreateUser(&body)
+	err := u.service.CreateUser(&itemReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -60,21 +60,19 @@ func (uc *userController) Destroy(ctx *gin.Context) {
 }
 
 func (u *userController) Login(ctx *gin.Context) {
-	var body struct {
+	var itemReq struct {
 		Email    string
 		Password string
 	}
 
-	// รับข้อมูลจาก body
-	if ctx.Bind(&body) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	validateCtx := request.NewCustomRequest(ctx)
+	if err := validateCtx.BindJSON(&itemReq); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// เรียกใช้ service เพื่อทำการล็อกอิน
-	token, err := u.service.Login(body.Email, body.Password)
+	token, err := u.service.Login(itemReq.Email, itemReq.Password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),

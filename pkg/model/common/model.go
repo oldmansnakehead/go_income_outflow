@@ -8,3 +8,7 @@ type Model struct {
 	UpdatedAt time.Time
 	DeletedAt time.Time
 }
+
+type CommonRequest struct {
+	With []string `json:"with" query:"with"` // รับจากทั้ง body และ query
+}
