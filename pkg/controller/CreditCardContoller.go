@@ -7,6 +7,7 @@ import (
 	"go_income_outflow/entities"
 	"go_income_outflow/helpers"
 	"go_income_outflow/pkg/controller/common"
+	"go_income_outflow/pkg/custom/request"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/service"
 	"net/http"
@@ -48,7 +49,8 @@ func (c *creditCardController) Index(ctx *gin.Context) {
 
 func (c *creditCardController) Store(ctx *gin.Context) {
 	var form model.CreditCardRequest
-	if err := ctx.ShouldBindJSON(&form); err != nil {
+	validateCtx := request.NewCustomRequest(ctx)
+	if err := validateCtx.BindJSON(&form); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -124,10 +126,9 @@ func (c *creditCardController) Update(ctx *gin.Context) {
 	}
 
 	form := model.CreditCardRequest{}
-	if err := ctx.ShouldBindJSON(&form); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	validateCtx := request.NewCustomRequest(ctx)
+	if err := validateCtx.BindJSON(&form); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
