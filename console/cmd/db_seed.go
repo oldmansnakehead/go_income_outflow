@@ -1,22 +1,17 @@
+// go run main.go db seed
+
 package cmd
 
 import (
-	"go_income_outflow/db"
 	"go_income_outflow/db/migrations/seeds"
 	"log"
 
 	"github.com/spf13/cobra"
-	"gorm.io/gorm"
 )
 
-var dbConn *gorm.DB
-
 var dbSeedCmd = &cobra.Command{
-	Use:   "dbSeed",
+	Use:   "seed",
 	Short: "Seed the database with initial data",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		dbConn = db.LazyConnect()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// Seed
 		if err := seeds.UserSeeder(dbConn); err != nil {
@@ -30,5 +25,5 @@ var dbSeedCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(dbSeedCmd)
+	dbCmd.AddCommand(dbSeedCmd)
 }

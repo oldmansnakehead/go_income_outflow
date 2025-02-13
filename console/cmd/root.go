@@ -4,9 +4,11 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"go_income_outflow/db"
 	"os"
 
 	"github.com/spf13/cobra"
+	"gorm.io/gorm"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -33,6 +35,14 @@ func Execute() {
 	}
 }
 
+var dbCmd = &cobra.Command{
+	Use:   "db",
+	Short: "Database operations",
+	Long:  `Operations related to the database, like seeding or migrating.`,
+}
+
+var dbConn *gorm.DB
+
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -43,4 +53,6 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	dbConn = db.LazyConnect()
+	rootCmd.AddCommand(dbCmd)
 }
