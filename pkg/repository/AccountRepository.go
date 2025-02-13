@@ -19,6 +19,7 @@ type (
 		Delete(account *entities.Account) error
 		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
+		FindByName(name string) (*entities.Account, error)
 	}
 
 	accountRepository struct {
@@ -104,4 +105,13 @@ func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]m
 	}
 
 	return response, nil
+}
+
+func (r *accountRepository) FindByName(name string) (*entities.Account, error) {
+	var item entities.Account
+	result := r.db.First(&item, "name = ?", name)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &item, nil
 }

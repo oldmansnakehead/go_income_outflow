@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -43,11 +44,12 @@ func ConnectDB() (c *gorm.DB) {
 	return Conn
 }
 
-/* func Migrate() {
-	Conn.AutoMigrate(
-		&model.Category{},
-		&model.Product{},
-		&model.Order{},
-		&model.OrderItem{},
-	)
-} */
+// ใช้ใน cobra
+func LazyConnect() *gorm.DB {
+	// โหลดไฟล์ .env
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	return ConnectDB()
+}

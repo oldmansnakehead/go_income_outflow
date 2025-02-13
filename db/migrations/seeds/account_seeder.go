@@ -5,17 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"go_income_outflow/entities"
-	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
 	"go_income_outflow/pkg/service"
 	"io"
 	"os"
 
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
-func UserSeeder(db *gorm.DB) error {
-	jsonFile, err := os.Open("../db/migrations/json/user.json")
+func AccountSeeder(db *gorm.DB) error {
+	jsonFile, err := os.Open("../db/migrations/json/account.json")
 	if err != nil {
 		return err
 	}
@@ -23,12 +23,11 @@ func UserSeeder(db *gorm.DB) error {
 
 	jsonData, _ := io.ReadAll(jsonFile)
 
-	var items []entities.User
+	var items []entities.Account
 	if err := json.Unmarshal(jsonData, &items); err != nil {
 		return err
 	}
 
-	// สร้างตารางใหม่ถ้าไม่มี
 	hasTable := db.Migrator().HasTable(&entities.User{})
 	if !hasTable {
 		if err := db.Migrator().CreateTable(&entities.User{}); err != nil {
@@ -36,30 +35,29 @@ func UserSeeder(db *gorm.DB) error {
 		}
 	}
 
-	repo := repository.NewUserRepository(db)
-	userService := service.NewUserService(repo)
+	repo := repository.NewAccountRepository(db)
+	service := service.NewAccountService(repo)
 
 	for _, data := range items {
-		existingUser, err := repo.FindUserByEmail(data.Email)
-		if err == nil && existingUser != nil {
+		existing, err := repo.FindByName(data.Name)
+		if err == nil && existing != nil {
 			// ถ้ามีผู้ใช้อยู่แล้ว ไม่ต้องทำการสร้างใหม่
-			fmt.Printf("User with email %s already exists, skipping...\n", data.Email)
+			fmt.Printf("User with email %s already exists, skipping...\n", data.Name)
 			continue
 		} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			// ถ้ามีข้อผิดพลาดอื่น ๆ เกิดขึ้น
 			return err
 		}
 
-		userRequest := model.UserRequest{
-			Email:    data.Email,
-			Password: data.Password,
-			Name:     data.Name,
+		var item entities.Account
+		if err := copier.Copy(&item, &data); err != nil {
+			return nil
 		}
 
-		if err := userService.CreateUser(&userRequest); err != nil {
-			return fmt.Errorf("failed to create user %s: %v", data.Email, err)
+		if err := service.CreateAccount(&item, []string{}); err != nil {
+			return fmt.Errorf("failed to create account %s: %v", data.Name, err)
 		}
-		fmt.Printf("User %s created successfully\n", data.Email)
+		fmt.Printf("User %s created successfully\n", data.Name)
 	}
 
 	return nil
