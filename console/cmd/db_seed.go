@@ -18,6 +18,7 @@ var dbSeedCmd = &cobra.Command{
 		dbConn = db.LazyConnect()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		// Seed
 		if err := seeds.UserSeeder(dbConn); err != nil {
 			log.Fatal(err.Error())
 		}

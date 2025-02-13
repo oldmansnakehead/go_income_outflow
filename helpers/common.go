@@ -139,3 +139,10 @@ func ParseDate(dateStr string) (time.Time, error) {
 	}
 	return parsedDate, nil
 }
+
+func UintToPointer(u uint) *uint {
+	if u == 0 {
+		return nil
+	}
+	return &u
+}

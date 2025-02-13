@@ -12,13 +12,13 @@ type (
 
 		Name string
 
-		UserID uint
+		UserID *uint
 		User   User `gorm:"foreignKey:UserID"`
 	}
 
 	AccountRequest struct {
 		Name   string   `json:"name" binding:"required"`
-		UserID uint     `json:"user_id" binding:"required"`
+		UserID uint     `json:"user_id"`
 		With   []string `json:"with"`
 	}
 
@@ -45,8 +45,13 @@ func (r *Account) EntitiesToModel(account *entities.Account) *Account {
 	r.UpdatedAt = account.UpdatedAt
 	r.Name = account.Name
 	r.UserID = account.UserID
+	var userID uint
+	if account.UserID != nil {
+		userID = *account.UserID
+	}
+
 	r.User = User{
-		ID:    account.UserID,
+		ID:    userID,
 		Name:  account.User.Name,
 		Email: account.User.Email,
 	}
@@ -55,12 +60,17 @@ func (r *Account) EntitiesToModel(account *entities.Account) *Account {
 }
 
 func (r *Account) ToResponse() AccountResponse {
+	var userID uint
+	if r.UserID != nil {
+		userID = *r.UserID
+	}
+
 	return AccountResponse{
 		ID:     r.ID,
 		Name:   r.Name,
-		UserID: r.UserID,
+		UserID: userID,
 		User: UserResponse{
-			ID:    r.UserID,
+			ID:    userID,
 			Name:  r.User.Name,
 			Email: r.User.Email,
 		},

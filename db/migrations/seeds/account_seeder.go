@@ -10,7 +10,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -28,9 +27,9 @@ func AccountSeeder(db *gorm.DB) error {
 		return err
 	}
 
-	hasTable := db.Migrator().HasTable(&entities.User{})
+	hasTable := db.Migrator().HasTable(&entities.Account{})
 	if !hasTable {
-		if err := db.Migrator().CreateTable(&entities.User{}); err != nil {
+		if err := db.Migrator().CreateTable(&entities.Account{}); err != nil {
 			return err
 		}
 	}
@@ -41,17 +40,16 @@ func AccountSeeder(db *gorm.DB) error {
 	for _, data := range items {
 		existing, err := repo.FindByName(data.Name)
 		if err == nil && existing != nil {
-			// ถ้ามีผู้ใช้อยู่แล้ว ไม่ต้องทำการสร้างใหม่
-			fmt.Printf("User with email %s already exists, skipping...\n", data.Name)
+			fmt.Printf("Account with name %s already exists, skipping...\n", data.Name)
 			continue
 		} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			// ถ้ามีข้อผิดพลาดอื่น ๆ เกิดขึ้น
 			return err
 		}
 
-		var item entities.Account
-		if err := copier.Copy(&item, &data); err != nil {
-			return nil
+		item := entities.Account{
+			Name:   data.Name,
+			UserID: data.UserID,
 		}
 
 		if err := service.CreateAccount(&item, []string{}); err != nil {
