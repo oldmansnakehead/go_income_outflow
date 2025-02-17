@@ -8,6 +8,6 @@ type Account struct {
 	gorm.Model
 	Name string `gorm:"size:50;not null"`
 
-	UserID *uint `json:"user_id"`
-	User   User  `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // OnUpdate:CASCADE = user_id มีการเปลี่ยนแปลง account.user_id เปลี่ยนแปลงตาม // OnDelete CASCADE เหมือนกัน parent ลบ child โดนลบ
+	UserID uint `json:"user_id"`
+	User   User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // OnUpdate:CASCADE = user_id มีการเปลี่ยนแปลง account.user_id เปลี่ยนแปลงตาม // OnDelete CASCADE เหมือนกัน parent ลบ child โดนลบ
 }

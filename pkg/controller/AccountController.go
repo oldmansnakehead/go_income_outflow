@@ -58,7 +58,7 @@ func (c *accountController) Store(ctx *gin.Context) {
 
 	account := entities.Account{
 		Name:   form.Name,
-		UserID: helpers.UintToPointer(form.UserID),
+		UserID: form.UserID,
 	}
 
 	if err := c.service.CreateAccount(&account, form.With); err != nil {
@@ -121,7 +121,7 @@ func (c *accountController) Update(ctx *gin.Context) {
 	account := entities.Account{
 		Model:  gorm.Model{ID: uint(uintID)},
 		Name:   form.Name,
-		UserID: helpers.UintToPointer(form.UserID),
+		UserID: form.UserID,
 	}
 
 	if err := c.service.UpdateAccount(&account, form.With); err != nil {

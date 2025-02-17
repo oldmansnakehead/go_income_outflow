@@ -12,7 +12,7 @@ type (
 
 		Name string
 
-		UserID *uint
+		UserID uint
 		User   User `gorm:"foreignKey:UserID"`
 	}
 
@@ -45,13 +45,9 @@ func (r *Account) EntitiesToModel(account *entities.Account) *Account {
 	r.UpdatedAt = account.UpdatedAt
 	r.Name = account.Name
 	r.UserID = account.UserID
-	var userID uint
-	if account.UserID != nil {
-		userID = *account.UserID
-	}
 
 	r.User = User{
-		ID:    userID,
+		ID:    r.UserID,
 		Name:  account.User.Name,
 		Email: account.User.Email,
 	}
@@ -60,17 +56,12 @@ func (r *Account) EntitiesToModel(account *entities.Account) *Account {
 }
 
 func (r *Account) ToResponse() AccountResponse {
-	var userID uint
-	if r.UserID != nil {
-		userID = *r.UserID
-	}
-
 	return AccountResponse{
 		ID:     r.ID,
 		Name:   r.Name,
-		UserID: userID,
+		UserID: r.UserID,
 		User: UserResponse{
-			ID:    userID,
+			ID:    r.UserID,
 			Name:  r.User.Name,
 			Email: r.User.Email,
 		},
