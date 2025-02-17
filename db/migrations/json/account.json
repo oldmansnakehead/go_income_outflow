@@ -1,18 +1,30 @@
 [
   {
     "name": "เงินสด",
-    "user_id": null
+    "user_id": 1,
+    "amount": 0,
+    "exclude_from_total": false,
+    "currency ": "THB"
   },
   {
     "name": "กสิกรไทย 222-4-33-5-6",
-    "user_id": 1
+    "user_id": 1,
+    "amount": 0,
+    "exclude_from_total": false,
+    "currency ": "THB"
   },
   {
     "name": "ไทยพาณิชย์ 451-666-23",
-    "user_id": 1
+    "user_id": 1,
+    "amount": 0,
+    "exclude_from_total": false,
+    "currency ": "THB"
   },
   {
     "name": "ไทยพาณิชย์ 123456999",
-    "user_id": 2
+    "user_id": 2,
+    "amount": 0,
+    "exclude_from_total": false,
+    "currency ": "THB"
   }
 ]

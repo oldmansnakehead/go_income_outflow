@@ -139,7 +139,7 @@ func (c *transactionCategoryController) Destroy(ctx *gin.Context) {
 		Model: gorm.Model{ID: uint(uintID)},
 	}
 
-	if c.service.DeleteTransactionCategory(&transactionCategory); err != nil {
+	if err := c.service.DeleteTransactionCategory(&transactionCategory); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete transactionCategory",
 		})

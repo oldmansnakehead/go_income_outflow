@@ -57,8 +57,11 @@ func (c *accountController) Store(ctx *gin.Context) {
 	}
 
 	account := entities.Account{
-		Name:   form.Name,
-		UserID: form.UserID,
+		Name:             form.Name,
+		UserID:           form.UserID,
+		Amount:           form.Amount,
+		ExcludeFromTotal: form.ExcludeFromTotal,
+		Currency:         form.Currency,
 	}
 
 	if err := c.service.CreateAccount(&account, form.With); err != nil {
@@ -110,7 +113,7 @@ func (c *accountController) Update(ctx *gin.Context) {
 		return
 	}
 
-	form := model.AccountQuery{}
+	form := model.AccountRequest{}
 	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -119,9 +122,12 @@ func (c *accountController) Update(ctx *gin.Context) {
 	}
 
 	account := entities.Account{
-		Model:  gorm.Model{ID: uint(uintID)},
-		Name:   form.Name,
-		UserID: form.UserID,
+		Model:            gorm.Model{ID: uint(uintID)},
+		Name:             form.Name,
+		UserID:           form.UserID,
+		Amount:           form.Amount,
+		ExcludeFromTotal: form.ExcludeFromTotal,
+		Currency:         form.Currency,
 	}
 
 	if err := c.service.UpdateAccount(&account, form.With); err != nil {
@@ -151,7 +157,7 @@ func (c *accountController) Destroy(ctx *gin.Context) {
 		Model: gorm.Model{ID: uint(uintID)},
 	}
 
-	if c.service.DeleteAccount(&account); err != nil {
+	if err := c.service.DeleteAccount(&account); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete account",
 		})

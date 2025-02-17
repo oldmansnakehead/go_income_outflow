@@ -169,7 +169,7 @@ func (c *creditCardController) Destroy(ctx *gin.Context) {
 		Model: gorm.Model{ID: uint(uintID)},
 	}
 
-	if c.service.DeleteCreditCard(&creditCard); err != nil {
+	if err := c.service.DeleteCreditCard(&creditCard); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete credit card",
 		})
