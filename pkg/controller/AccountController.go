@@ -4,6 +4,7 @@ package controller
 
 import (
 	"fmt"
+	"go_income_outflow/constants"
 	"go_income_outflow/entities"
 	"go_income_outflow/helpers"
 	"go_income_outflow/pkg/custom/request"
@@ -22,6 +23,8 @@ import (
 type (
 	AccountControllerUseCase interface {
 		common.ControllerUseCase
+
+		GetCurrencies(ctx *gin.Context)
 	}
 	accountController struct {
 		service service.AccountServiceUseCase
@@ -167,4 +170,8 @@ func (c *accountController) Destroy(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Account deleted successfully",
 	})
+}
+
+func (c *accountController) GetCurrencies(ctx *gin.Context) {
+	ctx.JSON(http.StatusCreated, constants.CurrencyDict)
 }

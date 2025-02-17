@@ -24,4 +24,6 @@ func accountRoutes(r *gin.Engine, db *gorm.DB) {
 	accountGroup.PATCH("/:id", middleware.Auth, accountController.Update)
 
 	accountGroup.DELETE("/:id", middleware.Auth, accountController.Destroy)
+
+	accountGroup.GET("/currencies", middleware.Auth, accountController.GetCurrencies)
 }
