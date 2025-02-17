@@ -56,6 +56,7 @@ func (c *transactionCategoryController) Store(ctx *gin.Context) {
 
 	transactionCategory := entities.TransactionCategory{
 		Name: form.Name,
+		Type: *form.Type,
 	}
 
 	if err := c.service.CreateTransactionCategory(&transactionCategory, nil); err != nil {

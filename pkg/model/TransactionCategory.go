@@ -11,10 +11,12 @@ type (
 		common.Model
 
 		Name string
+		Type bool
 	}
 
 	TransactionCategoryRequest struct {
 		Name string `json:"name" binding:"required"`
+		Type *bool  `json:"type" binding:"required"` // binding:"required" ใช้กับ bool ไม่ได้ต้อง *bool
 	}
 
 	TransactionCategoryResponse struct {
@@ -23,18 +25,21 @@ type (
 		UpdatedAt time.Time `json:"updated_at"`
 
 		Name string `json:"name"`
+		Type bool   `json:"type"`
 	}
 
 	TransactionCategoryQuery struct {
 		Name string `json:"name"`
+		Type bool   `json:"type"`
 	}
 )
 
-func (r *TransactionCategory) EntitiesToModel(TransactionCategory *entities.TransactionCategory) *TransactionCategory {
-	r.ID = TransactionCategory.ID
-	r.CreatedAt = TransactionCategory.CreatedAt
-	r.UpdatedAt = TransactionCategory.UpdatedAt
-	r.Name = TransactionCategory.Name
+func (r *TransactionCategory) EntitiesToModel(transactionCategory *entities.TransactionCategory) *TransactionCategory {
+	r.ID = transactionCategory.ID
+	r.CreatedAt = transactionCategory.CreatedAt
+	r.UpdatedAt = transactionCategory.UpdatedAt
+	r.Name = transactionCategory.Name
+	r.Type = transactionCategory.Type
 
 	return r
 }
@@ -43,6 +48,7 @@ func (r *TransactionCategory) ToResponse() TransactionCategoryResponse {
 	return TransactionCategoryResponse{
 		ID:   r.ID,
 		Name: r.Name,
+		Type: r.Type,
 	}
 }
 

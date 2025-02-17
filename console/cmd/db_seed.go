@@ -21,6 +21,10 @@ var dbSeedCmd = &cobra.Command{
 		if err := seeds.AccountSeeder(dbConn); err != nil {
 			log.Fatal(err.Error())
 		}
+
+		if err := seeds.TransactionCategorySeeder(dbConn); err != nil {
+			log.Fatal(err.Error())
+		}
 	},
 }
 

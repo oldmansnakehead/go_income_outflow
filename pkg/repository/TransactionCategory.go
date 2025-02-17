@@ -16,6 +16,7 @@ type (
 		Delete(transactionCategory *entities.TransactionCategory) error
 		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.TransactionCategoryResponse, error)
+		FindByName(name string) (*entities.TransactionCategory, error)
 	}
 
 	transactionCategoryRepository struct {
@@ -92,4 +93,13 @@ func (r *transactionCategoryRepository) FindWithFilters(filters map[string]inter
 	}
 
 	return response, nil
+}
+
+func (r *transactionCategoryRepository) FindByName(name string) (*entities.TransactionCategory, error) {
+	var item entities.TransactionCategory
+	result := r.db.First(&item, "name = ?", name)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &item, nil
 }

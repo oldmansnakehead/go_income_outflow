@@ -55,7 +55,7 @@ func AccountSeeder(db *gorm.DB) error {
 		if err := service.CreateAccount(&item, []string{}); err != nil {
 			return fmt.Errorf("failed to create account %s: %v", data.Name, err)
 		}
-		fmt.Printf("User %s created successfully\n", data.Name)
+		fmt.Printf("account %s created successfully\n", data.Name)
 	}
 
 	return nil

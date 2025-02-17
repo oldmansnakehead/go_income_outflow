@@ -1,7 +1,6 @@
 package request
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +41,6 @@ func (r *customRequest) BindJSON(obj any) error {
 	if err := r.ctx.ShouldBindJSON(&obj); err != nil {
 		return err
 	}
-	fmt.Println(obj, 123456)
 	if err := r.validator.Struct(obj); err != nil {
 		return err
 	}

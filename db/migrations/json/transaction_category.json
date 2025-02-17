@@ -1,0 +1,142 @@
+[
+  {
+    "name": "อาหาร & เครื่องดื่ม",
+    "type": false
+  },
+  {
+    "name": "ขนม",
+    "type": false
+  },
+  {
+    "name": "Shopping",
+    "type": false
+  },
+  {
+    "name": "การบำรุงรักษาบ้าน",
+    "type": false
+  },
+  {
+    "name": "การบำรุงรักษายานพาหนะ",
+    "type": false
+  },
+  {
+    "name": "การลงทุน",
+    "type": false
+  },
+  {
+    "name": "การศึกษา",
+    "type": false
+  },
+  {
+    "name": "การเดินทาง",
+    "type": false
+  },
+  {
+    "name": "การให้ & บริจาค",
+    "type": false
+  },
+  {
+    "name": "ของใช้ส่วนตัว",
+    "type": false
+  },
+  {
+    "name": "ของใช้ในบ้าน",
+    "type": false
+  },
+  {
+    "name": "ค่าน้ำประปา",
+    "type": false
+  },
+  {
+    "name": "ค่าน้ำมัน",
+    "type": false
+  },
+  {
+    "name": "ค่าอินเตอร์เน็ต",
+    "type": false
+  },
+  {
+    "name": "ค่าเช่า",
+    "type": false
+  },
+  {
+    "name": "ค่าโทรศัพท์",
+    "type": false
+  },
+  {
+    "name": "ค่าใช้จ่ายอื่นๆ",
+    "type": false
+  },
+  {
+    "name": "ค่าไฟฟ้า",
+    "type": false
+  },
+  {
+    "name": "จ่ายดอกเบี้ย",
+    "type": false
+  },
+  {
+    "name": "ซักผ้า",
+    "type": false
+  },
+  {
+    "name": "ตรวจสุขภาพ",
+    "type": false
+  },
+  {
+    "name": "บริการสตรีมมิ่ง",
+    "type": false
+  },
+  {
+    "name": "บิลค่าสาธารณูปโภคอื่นๆ",
+    "type": false
+  },
+  {
+    "name": "บิลโทรทัศน์",
+    "type": false
+  },
+  {
+    "name": "ประกันภัย",
+    "type": false
+  },
+  {
+    "name": "ฟิตเนส",
+    "type": false
+  },
+  {
+    "name": "สัตว์เลี้ยง",
+    "type": false
+  },
+  {
+    "name": "เงินสนุก",
+    "type": false
+  },
+  {
+    "name": "แต่งหน้า",
+    "type": false
+  },
+  {
+    "name": "โอนเงินออก",
+    "type": false
+  },
+  {
+    "name": "โฮมเซอร์วิส",
+    "type": false
+  },
+  {
+    "name": "รายได้อื่นๆ",
+    "type": true
+  },
+  {
+    "name": "เงินเดือน",
+    "type": true
+  },
+  {
+    "name": "เก็บดอกเบี้ย",
+    "type": true
+  },
+  {
+    "name": "โอนเงินเข้า",
+    "type": true
+  }
+]
