@@ -8,6 +8,8 @@ import (
 	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
+
+	"github.com/shopspring/decimal"
 )
 
 type (
@@ -18,6 +20,7 @@ type (
 		UpdateAccount(account *entities.Account, relations []string) error
 		DeleteAccount(account *entities.Account) error
 		GetWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
+		GetTotalAmount(userID uint) (decimal.Decimal, error)
 	}
 
 	accountService struct {
@@ -47,4 +50,8 @@ func (s *accountService) DeleteAccount(account *entities.Account) error {
 
 func (s *accountService) GetWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error) {
 	return s.repo.FindWithFilters(filters)
+}
+
+func (s *accountService) GetTotalAmount(userID uint) (decimal.Decimal, error) {
+	return s.repo.GetTotalAmount(userID)
 }

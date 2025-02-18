@@ -8,6 +8,7 @@ import (
 	"go_income_outflow/pkg/model"
 
 	"github.com/jinzhu/copier"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +21,7 @@ type (
 		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
 		FindByName(name string) (*entities.Account, error)
+		GetTotalAmount(userID uint) (decimal.Decimal, error)
 	}
 
 	accountRepository struct {
@@ -114,4 +116,20 @@ func (r *accountRepository) FindByName(name string) (*entities.Account, error) {
 		return nil, result.Error
 	}
 	return &item, nil
+}
+
+func (r *accountRepository) GetTotalAmount(userID uint) (decimal.Decimal, error) {
+	var totalAmount decimal.Decimal
+
+	// กรองตาม user_id
+	err := r.db.Model(&entities.Account{}).
+		Where("user_id = ?", userID). // กรองเฉพาะ user_id ที่ตรงกับที่ส่งมา
+		Select("SUM(amount)").
+		Scan(&totalAmount).Error
+
+	if err != nil {
+		return decimal.Zero, err
+	}
+
+	return totalAmount, nil
 }

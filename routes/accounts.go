@@ -26,4 +26,5 @@ func accountRoutes(r *gin.Engine, db *gorm.DB) {
 	accountGroup.DELETE("/:id", middleware.Auth, accountController.Destroy)
 
 	accountGroup.GET("/currencies", middleware.Auth, accountController.GetCurrencies)
+	accountGroup.GET("/total_amount", middleware.Auth, accountController.GetTotalAmount)
 }

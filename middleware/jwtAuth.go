@@ -36,6 +36,7 @@ func Auth(ctx *gin.Context) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
 
+		// เก็บ user ลงใน context
 		ctx.Set("user", user)
 
 		ctx.Next()

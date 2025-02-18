@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
+	"go_income_outflow/entities"
 	"strings"
 	"time"
 
@@ -145,4 +147,21 @@ func UintToPointer(u uint) *uint {
 		return nil
 	}
 	return &u
+}
+
+func AuthUser(ctx *gin.Context) (*entities.User, error) {
+	// ดึง user จาก context
+	user, exists := ctx.Get("user")
+	if !exists {
+		return nil, errors.New("user not found in context")
+	}
+
+	// แปลง user เป็นประเภท *entities.User
+	userObj, ok := user.(entities.User)
+	if !ok {
+		return nil, errors.New("invalid user type in context")
+	}
+
+	// คืนค่า pointer ของ user
+	return &userObj, nil
 }

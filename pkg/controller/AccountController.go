@@ -25,6 +25,7 @@ type (
 		common.ControllerUseCase
 
 		GetCurrencies(ctx *gin.Context)
+		GetTotalAmount(ctx *gin.Context)
 	}
 	accountController struct {
 		service service.AccountServiceUseCase
@@ -174,4 +175,24 @@ func (c *accountController) Destroy(ctx *gin.Context) {
 
 func (c *accountController) GetCurrencies(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, constants.CurrencyDict)
+}
+
+func (ac *accountController) GetTotalAmount(ctx *gin.Context) {
+	user, err := helpers.AuthUser(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	totalAmount, err := ac.service.GetTotalAmount(user.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to calculate total amount",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"total_amount": totalAmount.String(),
+	})
 }
