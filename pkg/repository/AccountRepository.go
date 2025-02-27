@@ -18,7 +18,6 @@ type (
 		FirstWithRelations(account *entities.Account, relations []string) error
 		Update(account *entities.Account, relations []string) error
 		Delete(account *entities.Account) error
-		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
 		FindByName(name string) (*entities.Account, error)
 		GetTotalAmount(userID uint) (decimal.Decimal, error)
@@ -83,17 +82,12 @@ func (r *accountRepository) Delete(account *entities.Account) error {
 	return nil
 }
 
-func (r *accountRepository) GetBaseQuery() *gorm.DB {
-	return r.db.Model(&entities.Account{})
-}
-
 func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error) {
 	var accounts []entities.Account
 	query := r.db.Model(&entities.Account{})
 
 	if relations, ok := filters["with"]; ok {
 		query = helpers.WithRelations(query, relations)
-
 	}
 
 	if value, ok := filters["user_id"]; ok {

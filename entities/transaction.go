@@ -2,8 +2,8 @@ package entities
 
 import (
 	"go_income_outflow/constants"
-	"time"
 
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -12,17 +12,17 @@ import (
 type Transaction struct {
 	gorm.Model
 
-	Amount          float64                   `gorm:"not null"`                                      // จำนวนเงิน
-	Type            constants.TransactionType `gorm:"type:transaction_type;default:'ANY';not null;"` // ประเภทของธุรกรรม (รายรับหรือรายจ่าย)
-	TransactionDate time.Time                 `gorm:"not null"`                                      // วันที่เกิดธุรกรรม
-	Description     string                    `gorm:"type:text"`                                     // รายละเอียดเพิ่มเติม
+	Amount      decimal.Decimal           `gorm:"type:decimal(20,2);default:0" json:"amount"`                // หรือเก็บเป็น string ก็ได้ใช้ shopstring/decimal คำนวนได้
+	Type        constants.TransactionType `gorm:"type:transaction_type;default:'ANY';not null;" json:"type"` // ประเภทของธุรกรรม (รายรับหรือรายจ่าย)
+	Description string                    `gorm:"type:text" json:"description"`
 
-	UserID uint `gorm:"not null"`
-	User   User
+	UserID uint `gorm:"not null" json:"user_id"`
+	User   User `json:"user"`
 
-	CategoryID uint                `gorm:"not null"`
-	Category   TransactionCategory `gorm:"foreignKey:CategoryID"`
+	CategoryID uint                `gorm:"not null" json:"category_id"`
+	Category   TransactionCategory `gorm:"foreignKey:CategoryID;references:ID" json:"category"`
 
-	AccountID uint    `gorm:"not null"`
-	Account   Account `gorm:"foreignKey:AccountID"`
+	TransactionableID   uint        `gorm:"not null" json:"transactionable_id"`
+	TransactionableType string      `gorm:"size:255;not null" json:"transactionable_type"` // "accounts" or "credit_cards"
+	Transactionable     interface{} `gorm:"-" json:"transactionable"`
 }

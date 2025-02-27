@@ -15,7 +15,6 @@ type (
 		FirstWithRelations(creditCard *entities.CreditCard, relations []string) error
 		Update(creditCard *entities.CreditCard, relations []string) error
 		Delete(creditCard *entities.CreditCard) error
-		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error)
 	}
 
@@ -56,7 +55,7 @@ func (r *creditCardRepository) FirstWithRelations(creditCard *entities.CreditCar
 }
 
 func (r *creditCardRepository) Update(creditCard *entities.CreditCard, relations []string) error {
-	if err := r.db.Save(creditCard).Error; err != nil {
+	if err := r.db.Model(creditCard).Omit("CreatedAt").Save(creditCard).Error; err != nil {
 		return err
 	}
 
@@ -74,10 +73,6 @@ func (r *creditCardRepository) Delete(creditCard *entities.CreditCard) error {
 		return err
 	}
 	return nil
-}
-
-func (r *creditCardRepository) GetBaseQuery() *gorm.DB {
-	return r.db.Model(&entities.CreditCard{})
 }
 
 func (r *creditCardRepository) FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error) {

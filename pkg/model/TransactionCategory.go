@@ -2,13 +2,18 @@ package model
 
 import (
 	"go_income_outflow/entities"
-	"go_income_outflow/pkg/model/common"
+	"log"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 type (
 	TransactionCategory struct {
-		common.Model
+		ID        uint
+		CreatedAt time.Time
+		UpdatedAt time.Time
+		DeletedAt time.Time
 
 		Name string
 		Type bool
@@ -34,24 +39,16 @@ type (
 	}
 )
 
-func (r *TransactionCategory) EntitiesToModel(transactionCategory *entities.TransactionCategory) *TransactionCategory {
-	r.ID = transactionCategory.ID
-	r.CreatedAt = transactionCategory.CreatedAt
-	r.UpdatedAt = transactionCategory.UpdatedAt
-	r.Name = transactionCategory.Name
-	r.Type = transactionCategory.Type
-
-	return r
-}
-
-func (r *TransactionCategory) ToResponse() TransactionCategoryResponse {
-	return TransactionCategoryResponse{
-		ID:   r.ID,
-		Name: r.Name,
-		Type: r.Type,
+func (r *TransactionCategory) ToResponse(category *entities.TransactionCategory) TransactionCategoryResponse {
+	var response TransactionCategoryResponse
+	err := copier.Copy(&response, category)
+	if err != nil {
+		log.Println("Error copying data:", err)
 	}
+
+	return response
 }
 
 func (r *TransactionCategory) Response(transactionCategory *entities.TransactionCategory) TransactionCategoryResponse {
-	return r.EntitiesToModel(transactionCategory).ToResponse()
+	return r.ToResponse(transactionCategory)
 }

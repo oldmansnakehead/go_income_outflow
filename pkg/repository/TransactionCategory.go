@@ -2,6 +2,7 @@ package repository
 
 import (
 	"go_income_outflow/entities"
+	"go_income_outflow/helpers"
 	"go_income_outflow/pkg/model"
 
 	"github.com/jinzhu/copier"
@@ -14,7 +15,6 @@ type (
 		FirstWithRelations(transactionCategory *entities.TransactionCategory, relations []string) error
 		Update(transactionCategory *entities.TransactionCategory, relations []string) error
 		Delete(transactionCategory *entities.TransactionCategory) error
-		GetBaseQuery() *gorm.DB
 		FindWithFilters(filters map[string]interface{}) ([]model.TransactionCategoryResponse, error)
 		FindByName(name string) (*entities.TransactionCategory, error)
 	}
@@ -56,7 +56,7 @@ func (r *transactionCategoryRepository) FirstWithRelations(transactionCategory *
 }
 
 func (r *transactionCategoryRepository) Update(transactionCategory *entities.TransactionCategory, relations []string) error {
-	if err := r.db.Save(transactionCategory).Error; err != nil {
+	if err := r.db.Model(transactionCategory).Omit("CreatedAt").Save(transactionCategory).Error; err != nil {
 		return err
 	}
 
@@ -76,13 +76,17 @@ func (r *transactionCategoryRepository) Delete(transactionCategory *entities.Tra
 	return nil
 }
 
-func (r *transactionCategoryRepository) GetBaseQuery() *gorm.DB {
-	return r.db.Model(&entities.TransactionCategory{})
-}
-
 func (r *transactionCategoryRepository) FindWithFilters(filters map[string]interface{}) ([]model.TransactionCategoryResponse, error) {
 	var items []entities.TransactionCategory
 	query := r.db.Model(&entities.TransactionCategory{})
+
+	if value, ok := filters["name"]; ok {
+		query = helpers.WhereConditions(query, "name", value)
+	}
+
+	if value, ok := filters["type"]; ok {
+		query = helpers.WhereConditions(query, "type", value)
+	}
 
 	if err := query.Find(&items).Error; err != nil {
 		return nil, err

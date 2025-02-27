@@ -3,7 +3,10 @@ package model
 import (
 	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model/common"
+	"log"
 	"time"
+
+	"github.com/jinzhu/copier"
 )
 
 type (
@@ -17,6 +20,8 @@ type (
 
 		UserID uint
 		User   User `gorm:"foreignKey:UserID"`
+
+		Transactions []Transaction `gorm:"polymorphic:Transactionable;"`
 	}
 
 	CreditCardRequest struct {
@@ -36,39 +41,27 @@ type (
 		Balance     float64   `json:"balance"`
 		DueDate     time.Time `json:"due_date"`
 
-		UserID uint         `json:"user_id"`
-		User   UserResponse `json:"user"`
+		UserID       uint         `json:"user_id"`
+		User         UserResponse `json:"user"`
+		Transactions []Transaction
 	}
 )
 
-func (r *CreditCard) EntitiesToModel(creditCard *entities.CreditCard) *CreditCard {
-	r.ID = creditCard.ID
-	r.CreatedAt = creditCard.CreatedAt
-	r.UpdatedAt = creditCard.UpdatedAt
-	r.Name = creditCard.Name
-	r.UserID = creditCard.UserID
-	r.User = User{
-		ID:    creditCard.UserID,
-		Name:  creditCard.User.Name,
-		Email: creditCard.User.Email,
+func (r *CreditCard) ToResponse(creditCardResponse *entities.CreditCard) CreditCardResponse {
+	var response CreditCardResponse
+	err := copier.Copy(&response, creditCardResponse)
+	if err != nil {
+		log.Println("Error copying data:", err)
 	}
 
-	return r
-}
-
-func (r *CreditCard) ToResponse() CreditCardResponse {
-	return CreditCardResponse{
-		ID:     r.ID,
-		Name:   r.Name,
-		UserID: r.UserID,
-		User: UserResponse{
-			ID:    r.UserID,
-			Name:  r.User.Name,
-			Email: r.User.Email,
-		},
+	err = copier.Copy(&response.User, &creditCardResponse.User)
+	if err != nil {
+		log.Println("Error copying user data:", err)
 	}
+
+	return response
 }
 
 func (r *CreditCard) Response(creditCard *entities.CreditCard) CreditCardResponse {
-	return r.EntitiesToModel(creditCard).ToResponse()
+	return r.ToResponse(creditCard)
 }
