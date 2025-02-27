@@ -19,14 +19,8 @@ func WhereConditions(query *gorm.DB, field string, filter interface{}) *gorm.DB 
 		}
 		return query.Where(field, v)
 	case []string:
-		// ถ้า filter เป็น array
-		query = query.Where("1 = 1") // เริ่ม query ด้วยเงื่อนไขพื้นฐาน 1=1 เป็นจริงอยู่แล้ว ต้องการเอา instance เพื่อใช้เงื่อนไขอื่นต่อ เพราะ or ถ้าไม่มีการใช้ where ก่อนจะไม่ทำงาน
-		for _, f := range v {
-			if f == "null" {
-				query = query.Or(field + " IS NULL")
-			} else {
-				query = query.Or(field, f)
-			}
+		if len(v) > 0 {
+			query = query.Where(field+" IN (?)", v)
 		}
 		return query
 	default:
@@ -61,7 +55,7 @@ func ParseQueryString(ctx *gin.Context) map[string]interface{} {
 }
 
 func WithRelations(query *gorm.DB, relations interface{}) *gorm.DB {
-	// เช็คว่า type relations
+	// เช็ค type relations
 	switch v := relations.(type) {
 	case string:
 		query = query.Preload(v)
