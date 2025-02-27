@@ -68,3 +68,7 @@ This project uses PostgreSQL to store data. The following tables and relationshi
    - **Transactions**: Stores transactions related to income and expenses.
    - **CreditCardDebt**: Stores information about credit card debts.
    - **TransactionCategory**: Stores categories for transactions (e.g., groceries, entertainment).
+
+## Seeder
+cd console
+go run main.go db seed
