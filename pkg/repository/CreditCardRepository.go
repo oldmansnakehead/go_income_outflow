@@ -16,6 +16,7 @@ type (
 		Update(creditCard *entities.CreditCard, relations []string) error
 		Delete(creditCard *entities.CreditCard) error
 		FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error)
+		FindByName(name string) (*entities.CreditCard, error)
 	}
 
 	creditCardRepository struct {
@@ -97,4 +98,13 @@ func (r *creditCardRepository) FindWithFilters(filters map[string]interface{}) (
 	}
 
 	return response, nil
+}
+
+func (r *creditCardRepository) FindByName(name string) (*entities.CreditCard, error) {
+	var item entities.CreditCard
+	result := r.db.First(&item, "name = ?", name)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &item, nil
 }

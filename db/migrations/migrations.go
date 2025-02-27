@@ -13,12 +13,19 @@ func Migrate() {
 	}
 	initialEnum(enumNames)
 
-	db.Conn.AutoMigrate(
+	tx := db.Conn.Begin()
+
+	if err := tx.AutoMigrate(
 		&entities.User{},
 		&entities.Account{},
 		&entities.CreditCardDebt{},
 		&entities.CreditCard{},
 		&entities.TransactionCategory{},
 		&entities.Transaction{},
-	)
+	); err != nil {
+		tx.Rollback()
+		panic(err)
+	}
+
+	tx.Commit()
 }
