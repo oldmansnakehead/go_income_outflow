@@ -126,7 +126,9 @@ func (c *accountController) Update(ctx *gin.Context) {
 	}
 
 	account := entities.Account{
-		Model:            gorm.Model{ID: uint(uintID)},
+		Model: gorm.Model{
+			ID: uint(uintID),
+		},
 		Name:             form.Name,
 		UserID:           form.UserID,
 		Amount:           form.Amount,

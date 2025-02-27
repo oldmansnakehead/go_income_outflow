@@ -61,7 +61,9 @@ func (r *accountRepository) FirstWithRelations(account *entities.Account, relati
 }
 
 func (r *accountRepository) Update(account *entities.Account, relations []string) error {
-	if err := r.db.Save(account).Error; err != nil {
+	// .Select("Name", "Amount", "ExcludeFromTotal", "Currency", "UserID") = อนุญาติให้อัพเดท fields ไหนบ้าง
+	// Omit ไม่อัพเดท field ที่เลือก
+	if err := r.db.Model(account).Omit("CreatedAt").Save(account).Error; err != nil {
 		return err
 	}
 
@@ -91,16 +93,22 @@ func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]m
 
 	if relations, ok := filters["with"]; ok {
 		query = helpers.WithRelations(query, relations)
+
 	}
 
 	if value, ok := filters["user_id"]; ok {
 		query = helpers.WhereConditions(query, "user_id", value)
 	}
 
+	if value, ok := filters["id"]; ok {
+		query = helpers.WhereConditions(query, "id", value)
+	}
+
 	// ดึงข้อมูล
 	if err := query.Find(&accounts).Error; err != nil {
 		return nil, err
 	}
+
 	var response []model.AccountResponse
 	if err := copier.Copy(&response, &accounts); err != nil {
 		return nil, nil
