@@ -110,6 +110,7 @@ func (c *transactionCategoryController) Update(ctx *gin.Context) {
 	transactionCategory := entities.TransactionCategory{
 		Model: gorm.Model{ID: uint(uintID)},
 		Name:  form.Name,
+		Type:  form.Type,
 	}
 
 	if err := c.service.UpdateTransactionCategory(&transactionCategory, nil); err != nil {
@@ -120,7 +121,7 @@ func (c *transactionCategoryController) Update(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "transactionCategory updated successfully",
+		"message": "data updated successfully",
 		"data":    (&model.TransactionCategory{}).Response(&transactionCategory),
 	})
 }
