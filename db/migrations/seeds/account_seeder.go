@@ -48,8 +48,11 @@ func AccountSeeder(db *gorm.DB) error {
 		}
 
 		item := entities.Account{
-			Name:   data.Name,
-			UserID: data.UserID,
+			Name:             data.Name,
+			UserID:           data.UserID,
+			Balance:          data.Balance,
+			Currency:         data.Currency,
+			ExcludeFromTotal: data.ExcludeFromTotal,
 		}
 
 		if err := service.CreateAccount(&item, []string{}); err != nil {

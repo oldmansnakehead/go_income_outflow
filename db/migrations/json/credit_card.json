@@ -3,14 +3,14 @@
     "name": "กรุงศรี",
     "credit_limit": 100000,
     "balance": 0,
-    "due_date": "2025-01-01",
+    "due_date": 1,
     "user_id": 1
   },
   {
     "name": "กสิกร",
     "credit_limit": 3000000,
     "balance": 0,
-    "due_date": "2025-01-01",
+    "due_date": 5,
     "user_id": 1
   }
 ]

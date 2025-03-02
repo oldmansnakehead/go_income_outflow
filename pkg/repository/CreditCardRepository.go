@@ -101,10 +101,9 @@ func (r *creditCardRepository) FindWithFilters(filters map[string]interface{}) (
 }
 
 func (r *creditCardRepository) FindByName(name string) (*entities.CreditCard, error) {
-	var item entities.CreditCard
-	result := r.db.First(&item, "name = ?", name)
-	if result.Error != nil {
-		return nil, result.Error
+	item := entities.CreditCard{}
+	if err := r.db.First(&item, "name = ?", name).Error; err != nil {
+		return nil, err
 	}
 	return &item, nil
 }

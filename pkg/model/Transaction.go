@@ -1,25 +1,112 @@
 package model
 
 import (
-	"go_income_outflow/constants"
-	"go_income_outflow/pkg/model/common"
+	"go_income_outflow/entities"
+	"log"
 	"time"
+
+	"github.com/jinzhu/copier"
+	"github.com/shopspring/decimal"
 )
 
-type Transaction struct {
-	common.Model
+type (
+	Transaction struct {
+		ID        uint
+		CreatedAt time.Time
+		UpdatedAt time.Time
+		DeletedAt time.Time
 
-	Amount          float64                   // จำนวนเงิน
-	Type            constants.TransactionType // ประเภทของธุรกรรม (รายรับหรือรายจ่าย)
-	TransactionDate time.Time                 // วันที่เกิดธุรกรรม
-	Description     string                    // รายละเอียดเพิ่มเติม
+		Date        string
+		Amount      decimal.Decimal // จำนวนเงิน
+		Description string          // รายละเอียดเพิ่มเติม
 
-	UserID uint
-	User   User
+		UserID uint
+		User   User
 
-	CategoryID uint
-	Category   TransactionCategory
+		CategoryID uint
+		Category   TransactionCategory
 
-	AccountID uint
-	Account   Account
+		TransactionableID   uint
+		TransactionableType string
+		Transactionable     interface{} `gorm:"-"`
+	}
+
+	TransactionRequest struct {
+		Date        string          `json:"date" binding:"required"`
+		Amount      decimal.Decimal `json:"amount" binding:"required"`
+		Description string          `json:"description"`
+
+		UserID uint `json:"user_id"`
+		User   User
+
+		CategoryID uint `json:"category_id"`
+		Category   TransactionCategory
+
+		TransactionableID   uint   `gorm:"not null" json:"transactionable_id"`
+		TransactionableType string `gorm:"not null" json:"transactionable_type"`
+
+		InstallmentCount uint `json:"installment_count"`
+
+		With []string `json:"with"`
+	}
+
+	TransactionResponse struct {
+		ID        uint      `json:"id"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+
+		Date   string          `json:"date"`
+		Amount decimal.Decimal `json:"amount"`
+
+		Description string `json:"description"`
+
+		UserID uint         `json:"user_id"`
+		User   UserResponse `json:"user"`
+
+		CategoryID uint                        `json:"category_id"`
+		Category   TransactionCategoryResponse `json:"category"`
+
+		TransactionableID   uint        `gorm:"not null" json:"transactionable_id"`
+		TransactionableType string      `gorm:"not null" json:"transactionable_type"`
+		Transactionable     interface{} `json:"transactionable"`
+	}
+
+	TransactionQuery struct {
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+
+		Date string `json:"date"`
+
+		UserID     uint `json:"user_id"`
+		CategoryID uint `json:"category_id"`
+
+		TransactionableID   uint   `gorm:"not null" json:"transactionable_id"`
+		TransactionableType string `gorm:"not null" json:"transactionable_type"`
+
+		With []string `json:"with"`
+	}
+)
+
+func (r *Transaction) ToResponse(transaction *entities.Transaction) TransactionResponse {
+	var response TransactionResponse
+	err := copier.Copy(&response, transaction)
+	if err != nil {
+		log.Println("Error copying data:", err)
+	}
+
+	err = copier.Copy(&response.User, &transaction.User)
+	if err != nil {
+		log.Println("Error copying user data:", err)
+	}
+
+	err = copier.Copy(&response.Category, &transaction.Category)
+	if err != nil {
+		log.Println("Error copying user data:", err)
+	}
+
+	return response
+}
+
+func (r *Transaction) Response(transaction *entities.Transaction) TransactionResponse {
+	return r.ToResponse(transaction)
 }

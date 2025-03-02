@@ -15,7 +15,7 @@ type (
 		common.Model
 
 		Name             string
-		Amount           decimal.Decimal
+		Balance          decimal.Decimal
 		ExcludeFromTotal bool
 		Currency         string
 
@@ -27,7 +27,7 @@ type (
 
 	AccountRequest struct {
 		Name             string          `json:"name" binding:"required"`
-		Amount           decimal.Decimal `json:"amount"`
+		Balance          decimal.Decimal `json:"balance"`
 		ExcludeFromTotal bool            `json:"exclude_from_total"`
 		Currency         string          `json:"currency"`
 		UserID           uint            `json:"user_id"`
@@ -40,7 +40,7 @@ type (
 		UpdatedAt time.Time `json:"updated_at"`
 
 		Name             string          `json:"name"`
-		Amount           decimal.Decimal `json:"amount"`
+		Balance          decimal.Decimal `json:"balance"`
 		ExcludeFromTotal bool            `json:"exclude_from_total"`
 		Currency         string          `json:"currency"`
 

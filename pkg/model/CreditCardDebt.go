@@ -4,16 +4,20 @@ import (
 	"time"
 
 	"go_income_outflow/pkg/model/common"
+
+	"github.com/shopspring/decimal"
 )
 
 type CreditCardDebt struct {
 	common.Model
 
-	Amount           float64   // ยอดหนี้ที่ค้างชำระ
-	DueDate          time.Time // วันที่ครบกำหนดชำระ
-	PaidAmount       float64   // จำนวนเงินที่ชำระไปแล้ว
-	RemainingBalance float64   // ยอดหนี้ที่เหลือ
+	Description string
+	Amount      decimal.Decimal
+	DueDate     time.Time
 
 	CreditCardID uint
 	CreditCard   CreditCard
+
+	TransactionID uint
+	Transaction   Transaction
 }

@@ -112,10 +112,9 @@ func (r *accountRepository) FindWithFilters(filters map[string]interface{}) ([]m
 }
 
 func (r *accountRepository) FindByName(name string) (*entities.Account, error) {
-	var item entities.Account
-	result := r.db.First(&item, "name = ?", name)
-	if result.Error != nil {
-		return nil, result.Error
+	item := entities.Account{}
+	if err := r.db.First(&item, "name = ?", name).Error; err != nil {
+		return nil, err
 	}
 	return &item, nil
 }

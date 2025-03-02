@@ -1,19 +1,20 @@
 package entities
 
 import (
-	"time"
-
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
 type CreditCardDebt struct {
 	gorm.Model
 
-	Amount           float64   `gorm:"not null" json:"amount"`            // ยอดหนี้ที่ค้างชำระ
-	DueDate          time.Time `gorm:"not null" json:"due_date"`          // วันที่ครบกำหนดชำระ
-	PaidAmount       float64   `gorm:"default:0" json:"paid_amount"`      // จำนวนเงินที่ชำระไปแล้ว
-	RemainingBalance float64   `gorm:"not null" json:"remaining_balance"` // ยอดหนี้ที่เหลือ
+	Description string          `gorm:"size:100;not null" json:"name"`
+	Amount      decimal.Decimal `gorm:"type:decimal(20,2);default:0" json:"amount"` // ยอดหนี้ที่ค้างชำระ
+	DueDate     string          `gorm:"type:date;not null" json:"due_date"`
 
 	CreditCardID uint       `gorm:"not null" json:"credit_card_id"`
 	CreditCard   CreditCard `gorm:"foreignKey:CreditCardID" json:"credit_card"`
+
+	TransactionID uint        `json:"transaction_id"`
+	Transaction   Transaction `gorm:"foreignKey:TransactionID" json:"transaction"`
 }

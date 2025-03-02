@@ -100,10 +100,9 @@ func (r *transactionCategoryRepository) FindWithFilters(filters map[string]inter
 }
 
 func (r *transactionCategoryRepository) FindByName(name string) (*entities.TransactionCategory, error) {
-	var item entities.TransactionCategory
-	result := r.db.First(&item, "name = ?", name)
-	if result.Error != nil {
-		return nil, result.Error
+	item := entities.TransactionCategory{}
+	if err := r.db.First(&item, "name = ?", name).Error; err != nil {
+		return nil, err
 	}
 	return &item, nil
 }

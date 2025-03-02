@@ -5,5 +5,4 @@ type TransactionType string
 const (
 	INCOME  TransactionType = "INCOME"
 	EXPENSE TransactionType = "EXPENSE"
-	ANY     TransactionType = "ANY"
 )

@@ -1,8 +1,6 @@
 package entities
 
 import (
-	"go_income_outflow/constants"
-
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -12,9 +10,9 @@ import (
 type Transaction struct {
 	gorm.Model
 
-	Amount      decimal.Decimal           `gorm:"type:decimal(20,2);default:0" json:"amount"`                // หรือเก็บเป็น string ก็ได้ใช้ shopstring/decimal คำนวนได้
-	Type        constants.TransactionType `gorm:"type:transaction_type;default:'ANY';not null;" json:"type"` // ประเภทของธุรกรรม (รายรับหรือรายจ่าย)
-	Description string                    `gorm:"type:text" json:"description"`
+	Date        string          `gorm:"type:date" json:"date"`
+	Amount      decimal.Decimal `gorm:"type:decimal(20,2);default:0" json:"amount"` // หรือเก็บเป็น string ก็ได้ใช้ shopstring/decimal คำนวนได้
+	Description string          `gorm:"type:text" json:"description"`
 
 	UserID uint `gorm:"not null" json:"user_id"`
 	User   User `json:"user"`

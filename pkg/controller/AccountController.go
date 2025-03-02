@@ -63,7 +63,7 @@ func (c *accountController) Store(ctx *gin.Context) {
 	account := entities.Account{
 		Name:             form.Name,
 		UserID:           form.UserID,
-		Amount:           form.Amount,
+		Balance:          form.Balance,
 		ExcludeFromTotal: form.ExcludeFromTotal,
 		Currency:         form.Currency,
 	}
@@ -131,7 +131,7 @@ func (c *accountController) Update(ctx *gin.Context) {
 		},
 		Name:             form.Name,
 		UserID:           form.UserID,
-		Amount:           form.Amount,
+		Balance:          form.Balance,
 		ExcludeFromTotal: form.ExcludeFromTotal,
 		Currency:         form.Currency,
 	}

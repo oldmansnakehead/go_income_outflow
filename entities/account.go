@@ -10,7 +10,7 @@ import (
 type Account struct {
 	gorm.Model
 	Name             string          `gorm:"size:50;not null" json:"name"`
-	Amount           decimal.Decimal `gorm:"type:decimal(20,2);default:0" json:"amount"` // หรือเก็บเป็น string ก็ได้ใช้ shopstring/decimal คำนวนได้
+	Balance          decimal.Decimal `gorm:"type:decimal(20,2);default:0" json:"balance"` // หรือเก็บเป็น string ก็ได้ใช้ shopstring/decimal คำนวนได้
 	ExcludeFromTotal bool            `gorm:"default:false" json:"exclude_from_total"`
 	Currency         string          `gorm:"size:3;not null" json:"currency"` // รหัสสกุลเงิน (เช่น "USD", "THB")
 

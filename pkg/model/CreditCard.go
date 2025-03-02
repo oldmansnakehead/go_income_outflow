@@ -4,9 +4,9 @@ import (
 	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model/common"
 	"log"
-	"time"
 
 	"github.com/jinzhu/copier"
+	"github.com/shopspring/decimal"
 )
 
 type (
@@ -14,9 +14,9 @@ type (
 		common.Model
 
 		Name        string
-		CreditLimit float64   // วงเงินของบัตรเครดิต
-		Balance     float64   // ยอดหนี้ที่ค้างจ่ายจากการใช้บัตร
-		DueDate     time.Time // วันที่ครบกำหนดชำระ
+		CreditLimit decimal.Decimal // วงเงินของบัตรเครดิต
+		Balance     decimal.Decimal // ยอดหนี้ที่ค้างจ่ายจากการใช้บัตร
+		DueDate     uint            // วันที่ครบกำหนดชำระ
 
 		UserID uint
 		User   User `gorm:"foreignKey:UserID"`
@@ -25,21 +25,21 @@ type (
 	}
 
 	CreditCardRequest struct {
-		Name        string  `json:"name" binding:"required"`
-		CreditLimit float64 `json:"credit_limit" binding:"required"`
-		Balance     float64 `json:"balance"`
-		DueDate     string  `json:"due_date"`
+		Name        string          `json:"name" binding:"required"`
+		CreditLimit decimal.Decimal `json:"credit_limit" binding:"required"`
+		Balance     decimal.Decimal `json:"balance"`
+		DueDate     uint            `json:"due_date"`
 
 		UserID uint     `json:"user_id" binding:"required"`
 		With   []string `json:"with"`
 	}
 
 	CreditCardResponse struct {
-		ID          uint      `json:"id"`
-		Name        string    `json:"name"`
-		CreditLimit float64   `json:"credit_limit"`
-		Balance     float64   `json:"balance"`
-		DueDate     time.Time `json:"due_date"`
+		ID          uint            `json:"id"`
+		Name        string          `json:"name"`
+		CreditLimit decimal.Decimal `json:"credit_limit"`
+		Balance     decimal.Decimal `json:"balance"`
+		DueDate     uint            `json:"due_date"`
 
 		UserID       uint         `json:"user_id"`
 		User         UserResponse `json:"user"`
