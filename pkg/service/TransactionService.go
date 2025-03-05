@@ -21,6 +21,7 @@ type (
 
 		handleAccountTransaction(transaction *entities.Transaction, tx *gorm.DB) error
 		handleCreditCardTransaction(transaction *entities.Transaction, request model.TransactionRequest, tx *gorm.DB) error
+		handleCreditCardDept(transaction *entities.Transaction, creditCardDeptID uint, tx *gorm.DB) error
 		calculateDueDate(dueDay uint) time.Time
 	}
 
@@ -34,6 +35,7 @@ func NewTransactionService(repo repository.TransactionRepository) TransactionSer
 }
 
 func (s *transactionService) CreateTransaction(transaction *entities.Transaction, request model.TransactionRequest) error {
+
 	tx := s.repo.BeginTransaction()
 
 	category, err := s.repo.GetTransactionCategoryByID(transaction.CategoryID)
@@ -50,12 +52,19 @@ func (s *transactionService) CreateTransaction(transaction *entities.Transaction
 		s.repo.RollbackTransaction(tx)
 		return err
 	}
-
+	fmt.Printf("%+v\n", transaction)
 	if transaction.TransactionableType == "accounts" {
-		err := s.handleAccountTransaction(transaction, tx)
-		if err != nil {
+
+		if err := s.handleAccountTransaction(transaction, tx); err != nil {
 			s.repo.RollbackTransaction(tx)
 			return err
+		}
+
+		if request.CreditCardDebtId != 0 {
+			if err := s.handleCreditCardDept(transaction, request.CreditCardDebtId, tx); err != nil {
+				s.repo.RollbackTransaction(tx)
+				return err
+			}
 		}
 	}
 
@@ -109,7 +118,7 @@ func (s *transactionService) handleCreditCardTransaction(transaction *entities.T
 		return errors.New("insufficient funds: transaction cannot be completed")
 	}
 	creditCard.Balance = creditCard.Balance.Add(transaction.Amount)
-	if err := s.repo.UpdateCreditCardBalance(creditCard, tx); err != nil {
+	if err := s.repo.UpdateCreditCard(creditCard, tx); err != nil {
 		return err
 	}
 
@@ -149,6 +158,37 @@ func (s *transactionService) handleCreditCardTransaction(transaction *entities.T
 	}
 
 	return nil
+}
+
+func (s *transactionService) handleCreditCardDept(transaction *entities.Transaction, creditCardDeptID uint, tx *gorm.DB) error {
+	creditCardDept, err := s.repo.GetCreditCardDeptByID(creditCardDeptID)
+	if err != nil {
+		return err
+	}
+
+	if creditCardDept.PaymentTransactionID != 0 {
+		return errors.New("payment has already been made for this credit card debt")
+	}
+
+	if transaction.Amount.Abs().LessThan(creditCardDept.Amount.Abs()) {
+		return errors.New("payment amount is insufficient to cover the credit card debt")
+	}
+
+	creditCardDept.Amount = transaction.Amount
+	creditCardDept.PaymentTransactionID = transaction.ID
+
+	if err := s.repo.UpdateCreditCardDebt(creditCardDept, tx); err != nil {
+		return err
+	}
+
+	creditCard, err := s.repo.GetCreditCardByID(creditCardDept.CreditCardID)
+	if err != nil {
+		return err
+	}
+
+	creditCard.Balance = creditCard.Balance.Add(transaction.Amount.Abs())
+
+	return s.repo.UpdateCreditCard(creditCard, tx)
 }
 
 func (s *transactionService) calculateDueDate(dueDay uint) time.Time {

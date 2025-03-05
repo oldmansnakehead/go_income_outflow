@@ -20,4 +20,7 @@ type CreditCardDebt struct {
 
 	TransactionID uint
 	Transaction   Transaction
+
+	PaymentTransactionID uint
+	PaymentTransaction   Transaction
 }

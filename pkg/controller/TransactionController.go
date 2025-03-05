@@ -54,7 +54,7 @@ func (c *transactionController) Store(ctx *gin.Context) {
 	}
 
 	transaction := entities.Transaction{}
-	copier.Copy(&transaction, &form)
+	copier.Copy(&transaction, form)
 
 	if err := c.service.CreateTransaction(&transaction, form); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

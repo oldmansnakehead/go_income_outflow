@@ -40,10 +40,11 @@ type (
 		User   User
 
 		CategoryID uint `json:"category_id"`
-		Category   TransactionCategory
 
 		TransactionableID   uint   `gorm:"not null" json:"transactionable_id"`
 		TransactionableType string `gorm:"not null" json:"transactionable_type"`
+
+		CreditCardDebtId uint `json:"credit_card_debt_id"`
 
 		InstallmentCount uint `json:"installment_count"`
 
