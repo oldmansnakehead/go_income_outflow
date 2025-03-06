@@ -2,13 +2,11 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"go_income_outflow/entities"
 	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
 	"time"
 
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -18,11 +16,10 @@ type (
 		FirstWithRelations(transaction *entities.Transaction, relations []string) error
 		DeleteTransaction(transaction *entities.Transaction) error
 		GetWithFilters(filters map[string]interface{}) ([]model.TransactionResponse, error)
-
+		calculateDueDate(dueDay uint) time.Time
 		handleAccountTransaction(transaction *entities.Transaction, tx *gorm.DB) error
 		handleCreditCardTransaction(transaction *entities.Transaction, request model.TransactionRequest, tx *gorm.DB) error
 		handleCreditCardDept(transaction *entities.Transaction, creditCardDeptID uint, tx *gorm.DB) error
-		calculateDueDate(dueDay uint) time.Time
 	}
 
 	transactionService struct {
@@ -174,37 +171,16 @@ func (s *transactionService) handleCreditCardTransaction(transaction *entities.T
 
 	dueDate := s.calculateDueDate(creditCard.DueDate)
 
-	if request.InstallmentCount > 0 {
-		// วนลูปสร้าง CreditCardDebt ตามจำนวน Installments
-		for i := uint(0); i < uint(request.InstallmentCount); i++ {
-			if i > 0 {
-				// เพิ่ม DueDate ทีละ 1 เดือน ยกเว้นงวดแรก
-				dueDate = dueDate.AddDate(0, 1, 0)
-			}
-			creditCardDebt := entities.CreditCardDebt{
-				Description:   fmt.Sprintf("%s (Installment %d/%d)", transaction.Description, i+1, request.InstallmentCount),
-				Amount:        transaction.Amount.Div(decimal.NewFromInt(int64(request.InstallmentCount))),
-				DueDate:       dueDate.Format("2006-01-02"),
-				CreditCardID:  creditCard.ID,
-				TransactionID: transaction.ID,
-			}
+	creditCardDebt := entities.CreditCardDebt{
+		Description:   transaction.Description,
+		Amount:        transaction.Amount,
+		DueDate:       dueDate.Format("2006-01-02"),
+		CreditCardID:  creditCard.ID,
+		TransactionID: &transaction.ID,
+	}
 
-			if err := s.repo.CreateCreditCardDebt(&creditCardDebt, tx); err != nil {
-				return err
-			}
-		}
-	} else {
-		creditCardDebt := entities.CreditCardDebt{
-			Description:   transaction.Description,
-			Amount:        transaction.Amount,
-			DueDate:       dueDate.Format("2006-01-02"),
-			CreditCardID:  creditCard.ID,
-			TransactionID: transaction.ID,
-		}
-
-		if err := s.repo.CreateCreditCardDebt(&creditCardDebt, tx); err != nil {
-			return err
-		}
+	if err := s.repo.CreateCreditCardDebt(&creditCardDebt, tx); err != nil {
+		return err
 	}
 
 	return nil

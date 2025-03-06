@@ -19,4 +19,5 @@ func InitialRoute(r *gin.Engine, db *gorm.DB) {
 	creditCardRoutes(r, db)
 	transactionCategoryRoutes(r, db)
 	transactionRoutes(r, db)
+	creditCardDebtRoutes(r, db)
 }

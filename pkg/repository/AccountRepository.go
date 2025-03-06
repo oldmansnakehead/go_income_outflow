@@ -21,6 +21,8 @@ type (
 		FindWithFilters(filters map[string]interface{}) ([]model.AccountResponse, error)
 		FindByName(name string) (*entities.Account, error)
 		GetTotalAmount(userID uint) (decimal.Decimal, error)
+		GetAccountByID(accountID uint) (*entities.Account, error)
+		UpdateAccountBalance(account *entities.Account, tx *gorm.DB) error
 	}
 
 	accountRepository struct {
@@ -133,4 +135,21 @@ func (r *accountRepository) GetTotalAmount(userID uint) (decimal.Decimal, error)
 	}
 
 	return totalAmount, nil
+}
+
+func (r *accountRepository) GetAccountByID(accountID uint) (*entities.Account, error) {
+	var account entities.Account
+	if err := r.db.First(&account, accountID).Error; err != nil {
+		return nil, err
+	}
+	return &account, nil
+}
+
+func (r *accountRepository) UpdateAccountBalance(account *entities.Account, tx *gorm.DB) error {
+	conn := r.db
+	if tx != nil {
+		conn = tx
+	}
+
+	return conn.Model(&account).Update("balance", account.Balance).Error
 }

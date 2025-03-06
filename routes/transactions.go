@@ -11,7 +11,12 @@ import (
 )
 
 func transactionRoutes(r *gin.Engine, db *gorm.DB) {
-	transactionRepo := repository.NewTransactionRepository(db)
+	creditCardRepo := repository.NewCreditCardRepository(db)
+	accountRepo := repository.NewAccountRepository(db)
+	creditCardDebtRepo := repository.NewCreditCardDebtRepository(db, creditCardRepo)
+	transactionCategoryRepo := repository.NewTransactionCategoryRepository(db)
+
+	transactionRepo := repository.NewTransactionRepository(db, accountRepo, creditCardRepo, creditCardDebtRepo, transactionCategoryRepo)
 	transactionService := service.NewTransactionService(transactionRepo)
 	transactionController := controller.NewTransactionController(transactionService)
 

@@ -15,29 +15,48 @@ type (
 		BeginTransaction() *gorm.DB
 		CommitTransaction(tx *gorm.DB) error
 		RollbackTransaction(tx *gorm.DB) error
+
 		CreateTransaction(transaction *entities.Transaction, tx *gorm.DB) error
+		GetTransactionByID(transactionID uint) (*entities.Transaction, error)
+		FirstWithRelations(transaction *entities.Transaction, relations []string) error
+		Delete(transaction *entities.Transaction, tx *gorm.DB) error
+		FindWithFilters(filters map[string]interface{}) ([]model.TransactionResponse, error)
+
 		GetAccountByID(accountID uint) (*entities.Account, error)
 		GetCreditCardDeptByID(CreditCardDebtID uint) (*entities.CreditCardDebt, error)
 		GetCreditCardDeptByPaymentId(PaymentID uint) (*entities.CreditCardDebt, error)
 		GetTransactionCategoryByID(categoryId uint) (*entities.TransactionCategory, error)
 		GetCreditCardByID(creditCardID uint) (*entities.CreditCard, error)
-		GetTransactionByID(transactionID uint) (*entities.Transaction, error)
+
 		UpdateAccountBalance(account *entities.Account, tx *gorm.DB) error
 		UpdateCreditCardBalance(creditCard *entities.CreditCard, tx *gorm.DB) error
 		UpdateCreditCardDebt(creditCardDebt *entities.CreditCardDebt, tx *gorm.DB) error
 		CreateCreditCardDebt(creditCardDebt *entities.CreditCardDebt, tx *gorm.DB) error
-		FirstWithRelations(transaction *entities.Transaction, relations []string) error
-		Delete(transaction *entities.Transaction, tx *gorm.DB) error
-		FindWithFilters(filters map[string]interface{}) ([]model.TransactionResponse, error)
 	}
 
 	transactionRepository struct {
-		db *gorm.DB
+		db                      *gorm.DB
+		accountRepo             AccountRepository
+		creditCardRepo          CreditCardRepository
+		creditCardDebtRepo      CreditCardDebtRepository
+		transactionCategoryRepo TransactionCategoryRepository
 	}
 )
 
-func NewTransactionRepository(db *gorm.DB) TransactionRepository {
-	return &transactionRepository{db: db}
+func NewTransactionRepository(
+	db *gorm.DB,
+	accountRepo AccountRepository,
+	creditCardRepo CreditCardRepository,
+	creditCardDebtRepo CreditCardDebtRepository,
+	transactionCategoryRepo TransactionCategoryRepository,
+) TransactionRepository {
+	return &transactionRepository{
+		db:                      db,
+		accountRepo:             accountRepo,
+		creditCardRepo:          creditCardRepo,
+		creditCardDebtRepo:      creditCardDebtRepo,
+		transactionCategoryRepo: transactionCategoryRepo,
+	}
 }
 
 func (r *transactionRepository) BeginTransaction() *gorm.DB {
@@ -61,11 +80,7 @@ func (r *transactionRepository) CreateTransaction(transaction *entities.Transact
 }
 
 func (r *transactionRepository) GetAccountByID(accountID uint) (*entities.Account, error) {
-	var account entities.Account
-	if err := r.db.First(&account, accountID).Error; err != nil {
-		return nil, err
-	}
-	return &account, nil
+	return r.accountRepo.GetAccountByID(accountID)
 }
 
 func (r *transactionRepository) GetCreditCardDeptByID(CreditCardDebtID uint) (*entities.CreditCardDebt, error) {
@@ -76,28 +91,16 @@ func (r *transactionRepository) GetCreditCardDeptByID(CreditCardDebtID uint) (*e
 	return &creditCardDebt, nil
 }
 
-func (r *transactionRepository) GetCreditCardDeptByPaymentId(PaymentID uint) (*entities.CreditCardDebt, error) {
-	var creditCardDebt entities.CreditCardDebt
-	if err := r.db.Where("payment_transaction_id = ?", PaymentID).First(&creditCardDebt).Error; err != nil {
-		return nil, err
-	}
-	return &creditCardDebt, nil
+func (r *transactionRepository) GetCreditCardDeptByPaymentId(paymentID uint) (*entities.CreditCardDebt, error) {
+	return r.creditCardDebtRepo.GetCreditCardDeptByPaymentId(paymentID)
 }
 
 func (r *transactionRepository) GetTransactionCategoryByID(categoryId uint) (*entities.TransactionCategory, error) {
-	var category entities.TransactionCategory
-	if err := r.db.First(&category, categoryId).Error; err != nil {
-		return nil, err
-	}
-	return &category, nil
+	return r.transactionCategoryRepo.GetTransactionCategoryByID(categoryId)
 }
 
 func (r *transactionRepository) GetCreditCardByID(creditCardID uint) (*entities.CreditCard, error) {
-	var creditCard entities.CreditCard
-	if err := r.db.First(&creditCard, creditCardID).Error; err != nil {
-		return nil, err
-	}
-	return &creditCard, nil
+	return r.creditCardRepo.GetCreditCardByID(creditCardID)
 }
 
 func (r *transactionRepository) GetTransactionByID(transactionID uint) (*entities.Transaction, error) {
@@ -109,39 +112,19 @@ func (r *transactionRepository) GetTransactionByID(transactionID uint) (*entitie
 }
 
 func (r *transactionRepository) UpdateAccountBalance(account *entities.Account, tx *gorm.DB) error {
-	conn := r.db
-	if tx != nil {
-		conn = tx
-	}
-
-	return conn.Model(&account).Update("balance", account.Balance).Error
+	return r.accountRepo.UpdateAccountBalance(account, tx)
 }
 
 func (r *transactionRepository) UpdateCreditCardBalance(creditCard *entities.CreditCard, tx *gorm.DB) error {
-	conn := r.db
-	if tx != nil {
-		conn = tx
-	}
-
-	return conn.Model(&creditCard).Update("balance", creditCard.Balance).Error
+	return r.creditCardRepo.UpdateCreditCardBalance(creditCard, tx)
 }
 
 func (r *transactionRepository) CreateCreditCardDebt(creditCardDebt *entities.CreditCardDebt, tx *gorm.DB) error {
-	conn := r.db
-	if tx != nil {
-		conn = tx
-	}
-
-	return conn.Create(creditCardDebt).Error
+	return r.creditCardDebtRepo.CreateCreditCardDebt(creditCardDebt, tx)
 }
 
 func (r *transactionRepository) UpdateCreditCardDebt(creditCardDebt *entities.CreditCardDebt, tx *gorm.DB) error {
-	conn := r.db
-	if tx != nil {
-		conn = tx
-	}
-
-	return conn.Save(creditCardDebt).Error
+	return r.creditCardDebtRepo.UpdateCreditCardDebt(creditCardDebt, tx)
 }
 
 func (r *transactionRepository) FirstWithRelations(transaction *entities.Transaction, relations []string) error {

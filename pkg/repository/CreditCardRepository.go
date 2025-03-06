@@ -17,6 +17,8 @@ type (
 		Delete(creditCard *entities.CreditCard) error
 		FindWithFilters(filters map[string]interface{}) ([]model.CreditCardResponse, error)
 		FindByName(name string) (*entities.CreditCard, error)
+		GetCreditCardByID(creditCardID uint) (*entities.CreditCard, error)
+		UpdateCreditCardBalance(creditCard *entities.CreditCard, tx *gorm.DB) error
 	}
 
 	creditCardRepository struct {
@@ -106,4 +108,21 @@ func (r *creditCardRepository) FindByName(name string) (*entities.CreditCard, er
 		return nil, err
 	}
 	return &item, nil
+}
+
+func (r *creditCardRepository) GetCreditCardByID(creditCardID uint) (*entities.CreditCard, error) {
+	var creditCard entities.CreditCard
+	if err := r.db.First(&creditCard, creditCardID).Error; err != nil {
+		return nil, err
+	}
+	return &creditCard, nil
+}
+
+func (r *creditCardRepository) UpdateCreditCardBalance(creditCard *entities.CreditCard, tx *gorm.DB) error {
+	conn := r.db
+	if tx != nil {
+		conn = tx
+	}
+
+	return conn.Model(&creditCard).Update("balance", creditCard.Balance).Error
 }

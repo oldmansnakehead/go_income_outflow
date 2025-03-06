@@ -17,6 +17,7 @@ type (
 		Delete(transactionCategory *entities.TransactionCategory) error
 		FindWithFilters(filters map[string]interface{}) ([]model.TransactionCategoryResponse, error)
 		FindByName(name string) (*entities.TransactionCategory, error)
+		GetTransactionCategoryByID(categoryId uint) (*entities.TransactionCategory, error)
 	}
 
 	transactionCategoryRepository struct {
@@ -105,4 +106,12 @@ func (r *transactionCategoryRepository) FindByName(name string) (*entities.Trans
 		return nil, err
 	}
 	return &item, nil
+}
+
+func (r *transactionCategoryRepository) GetTransactionCategoryByID(categoryId uint) (*entities.TransactionCategory, error) {
+	var category entities.TransactionCategory
+	if err := r.db.First(&category, categoryId).Error; err != nil {
+		return nil, err
+	}
+	return &category, nil
 }
