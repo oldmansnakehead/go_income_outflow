@@ -18,6 +18,6 @@ type CreditCardDebt struct {
 	TransactionID uint        `json:"transaction_id"`
 	Transaction   Transaction `gorm:"foreignKey:TransactionID" json:"transaction"`
 
-	PaymentTransactionID uint        `json:"payment_transaction_id"`
+	PaymentTransactionID *uint       `json:"payment_transaction_id"`
 	PaymentTransaction   Transaction `gorm:"foreignKey:PaymentTransactionID" json:"payment_transaction"`
 }

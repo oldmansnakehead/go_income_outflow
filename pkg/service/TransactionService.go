@@ -35,7 +35,6 @@ func NewTransactionService(repo repository.TransactionRepository) TransactionSer
 }
 
 func (s *transactionService) CreateTransaction(transaction *entities.Transaction, request model.TransactionRequest) error {
-
 	tx := s.repo.BeginTransaction()
 
 	category, err := s.repo.GetTransactionCategoryByID(transaction.CategoryID)
@@ -52,9 +51,8 @@ func (s *transactionService) CreateTransaction(transaction *entities.Transaction
 		s.repo.RollbackTransaction(tx)
 		return err
 	}
-	fmt.Printf("%+v\n", transaction)
-	if transaction.TransactionableType == "accounts" {
 
+	if transaction.TransactionableType == "accounts" {
 		if err := s.handleAccountTransaction(transaction, tx); err != nil {
 			s.repo.RollbackTransaction(tx)
 			return err
@@ -88,7 +86,59 @@ func (s *transactionService) FirstWithRelations(transaction *entities.Transactio
 }
 
 func (s *transactionService) DeleteTransaction(transaction *entities.Transaction) error {
-	return s.repo.Delete(transaction)
+	tx := s.repo.BeginTransaction()
+
+	transaction, err := s.repo.GetTransactionByID(transaction.ID)
+	if err != nil {
+		return err
+	}
+
+	if transaction.TransactionableType == "accounts" {
+		creditCardDept, err := s.repo.GetCreditCardDeptByPaymentId(transaction.ID)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		if creditCardDept != nil {
+			creditCardDept.PaymentTransactionID = nil
+			if err := s.repo.UpdateCreditCardDebt(creditCardDept, tx); err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+
+		account, err := s.repo.GetAccountByID(transaction.TransactionableID)
+		if err != nil {
+			return err
+		}
+
+		account.Balance = account.Balance.Add(transaction.Amount.Neg())
+		if err := s.repo.UpdateAccountBalance(account, tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else if transaction.TransactionableType == "credit_cards" {
+		creditCard, err := s.repo.GetCreditCardByID(transaction.TransactionableID)
+		if err != nil {
+			return err
+		}
+		creditCard.Balance = creditCard.Balance.Add(transaction.Amount.Neg())
+		if err := s.repo.UpdateCreditCardBalance(creditCard, tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err := s.repo.Delete(transaction, tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := s.repo.CommitTransaction(tx); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *transactionService) GetWithFilters(filters map[string]interface{}) ([]model.TransactionResponse, error) {
@@ -118,7 +168,7 @@ func (s *transactionService) handleCreditCardTransaction(transaction *entities.T
 		return errors.New("insufficient funds: transaction cannot be completed")
 	}
 	creditCard.Balance = creditCard.Balance.Add(transaction.Amount)
-	if err := s.repo.UpdateCreditCard(creditCard, tx); err != nil {
+	if err := s.repo.UpdateCreditCardBalance(creditCard, tx); err != nil {
 		return err
 	}
 
@@ -166,7 +216,7 @@ func (s *transactionService) handleCreditCardDept(transaction *entities.Transact
 		return err
 	}
 
-	if creditCardDept.PaymentTransactionID != 0 {
+	if creditCardDept.PaymentTransactionID != nil {
 		return errors.New("payment has already been made for this credit card debt")
 	}
 
@@ -175,7 +225,7 @@ func (s *transactionService) handleCreditCardDept(transaction *entities.Transact
 	}
 
 	creditCardDept.Amount = transaction.Amount
-	creditCardDept.PaymentTransactionID = transaction.ID
+	creditCardDept.PaymentTransactionID = &transaction.ID
 
 	if err := s.repo.UpdateCreditCardDebt(creditCardDept, tx); err != nil {
 		return err
@@ -188,7 +238,7 @@ func (s *transactionService) handleCreditCardDept(transaction *entities.Transact
 
 	creditCard.Balance = creditCard.Balance.Add(transaction.Amount.Abs())
 
-	return s.repo.UpdateCreditCard(creditCard, tx)
+	return s.repo.UpdateCreditCardBalance(creditCard, tx)
 }
 
 func (s *transactionService) calculateDueDate(dueDay uint) time.Time {

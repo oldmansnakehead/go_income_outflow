@@ -114,7 +114,7 @@ func (c *transactionController) Destroy(ctx *gin.Context) {
 
 	if err := c.service.DeleteTransaction(&transaction); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to delete transaction",
+			"error": err.Error(),
 		})
 		return
 	}
