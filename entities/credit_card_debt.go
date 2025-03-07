@@ -15,7 +15,7 @@ type CreditCardDebt struct {
 	CreditCardID uint       `gorm:"not null" json:"credit_card_id"`
 	CreditCard   CreditCard `gorm:"foreignKey:CreditCardID" json:"credit_card"`
 
-	TransactionID *uint       `json:"transaction_id"` //ตัดบัตรจะผูกกับ transaction ที่ใช้บัตรเครดิตจ่าย // ถ้าผ่อนรายเดือนจะเป็น null
+	TransactionID uint        `json:"transaction_id"`
 	Transaction   Transaction `gorm:"foreignKey:TransactionID" json:"transaction"`
 
 	PaymentTransactionID *uint       `json:"payment_transaction_id"` // จ่ายหนี้บัตรเครดิต

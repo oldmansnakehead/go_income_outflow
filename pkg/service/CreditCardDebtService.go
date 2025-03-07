@@ -1,19 +1,13 @@
 package service
 
 import (
-	"fmt"
-	"go_income_outflow/entities"
-	"go_income_outflow/pkg/model"
 	"go_income_outflow/pkg/repository"
-	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type (
 	CreditCardDebtServiceUseCase interface {
-		CreateDebt(request *model.CreditCardDebtRequest) (debts *[]entities.CreditCardDebt, err error)
-		calculateDueDate(dueDay uint) time.Time
+		/* CreateDebt(request *model.CreditCardDebtRequest) (debts *[]entities.CreditCardDebt, err error)
+		calculateDueDate(dueDay uint) time.Time */
 	}
 
 	creditCardDebtService struct {
@@ -25,7 +19,7 @@ func NewCreditCardDebtService(repo repository.CreditCardDebtRepository) CreditCa
 	return &creditCardDebtService{repo: repo}
 }
 
-func (s *creditCardDebtService) CreateDebt(request *model.CreditCardDebtRequest) (debts *[]entities.CreditCardDebt, err error) {
+/* func (s *creditCardDebtService) CreateDebt(request *model.CreditCardDebtRequest) (debts *[]entities.CreditCardDebt, err error) {
 	tx := s.repo.BeginTransaction()
 
 	creditCard, err := s.repo.GetCreditCardByID(request.CreditCardID)
@@ -79,4 +73,4 @@ func (s *creditCardDebtService) calculateDueDate(dueDay uint) time.Time {
 
 	dueDate := time.Date(year, month, int(dueDay), 0, 0, 0, 0, loc)
 	return dueDate // แปลงเป็น string
-}
+} */
