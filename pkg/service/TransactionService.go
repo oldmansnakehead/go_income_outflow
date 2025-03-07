@@ -18,7 +18,7 @@ type (
 		FirstWithRelations(transaction *entities.Transaction, relations []string) error
 		DeleteTransaction(transaction *entities.Transaction) error
 		GetWithFilters(filters map[string]interface{}) ([]model.TransactionResponse, error)
-		calculateDueDate(dueDay uint) time.Time
+		calculateDueDate(dueDay uint, transactionDateStr string) (time.Time, error)
 		handleAccountTransaction(transaction *entities.Transaction, tx *gorm.DB) error
 		handleCreditCardTransaction(transaction *entities.Transaction, request model.TransactionRequest, tx *gorm.DB) error
 		handleCreditCardDept(transaction *entities.Transaction, creditCardDeptID uint, tx *gorm.DB) error
@@ -171,7 +171,10 @@ func (s *transactionService) handleCreditCardTransaction(transaction *entities.T
 		return err
 	}
 
-	dueDate := s.calculateDueDate(creditCard.DueDate)
+	dueDate, err := s.calculateDueDate(creditCard.DueDate, transaction.Date)
+	if err != nil {
+		return err
+	}
 
 	if request.InstallmentCount > 0 {
 		// วนลูปสร้าง CreditCardDebt ตามจำนวน Installments
@@ -240,13 +243,18 @@ func (s *transactionService) handleCreditCardDept(transaction *entities.Transact
 	return s.repo.UpdateCreditCardBalance(creditCard, tx)
 }
 
-func (s *transactionService) calculateDueDate(dueDay uint) time.Time {
-	now := time.Now()
-	year, month, day := now.Date()
-	loc := now.Location()
+func (s *transactionService) calculateDueDate(dueDay uint, transactionDateStr string) (time.Time, error) {
+	// แปลง transactionDateStr จาก string เป็น time.Time
+	transactionDate, err := time.Parse("2006-01-02", transactionDateStr)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid transaction date format: %v", err)
+	}
+
+	year, month, day := transactionDate.Date()
+	loc := transactionDate.Location()
 
 	if uint(day) > dueDay {
-		// ถ้าข้าม DueDate ไปแล้ว ใช้เดือนถัดไป
+		// ถ้าวันที่ทำรายการเลยวันที่ครบกำหนดชำระไปแล้ว ใช้เดือนถัดไป
 		month++
 		if month > 12 {
 			month = 1
@@ -255,5 +263,5 @@ func (s *transactionService) calculateDueDate(dueDay uint) time.Time {
 	}
 
 	dueDate := time.Date(year, month, int(dueDay), 0, 0, 0, 0, loc)
-	return dueDate // แปลงเป็น string
+	return dueDate, nil
 }
