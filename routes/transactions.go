@@ -21,9 +21,10 @@ func transactionRoutes(r *gin.Engine, db *gorm.DB) {
 	transactionController := controller.NewTransactionController(transactionService)
 
 	transactionGroup := r.Group("/transactions")
-	transactionGroup.GET("", middleware.Auth, transactionController.Index)
-	transactionGroup.POST("", middleware.Auth, transactionController.Store)
-	transactionGroup.GET("/:id", middleware.Auth, transactionController.Show)
+	transactionGroup.Use(middleware.Auth)
+	transactionGroup.GET("", transactionController.Index)
+	transactionGroup.POST("", transactionController.Store)
+	transactionGroup.GET("/:id", transactionController.Show)
 
-	transactionGroup.DELETE("/:id", middleware.Auth, transactionController.Destroy)
+	transactionGroup.DELETE("/:id", transactionController.Destroy)
 }

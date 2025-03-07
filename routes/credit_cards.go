@@ -16,12 +16,13 @@ func creditCardRoutes(r *gin.Engine, db *gorm.DB) {
 	creditCardController := controller.NewCreditCardController(creditCardService)
 
 	creditCardGroup := r.Group("/credit_cards")
-	creditCardGroup.GET("", middleware.Auth, creditCardController.Index)
-	creditCardGroup.POST("", middleware.Auth, creditCardController.Store)
-	creditCardGroup.GET("/:id", middleware.Auth, creditCardController.Show)
+	creditCardGroup.Use(middleware.Auth)
+	creditCardGroup.GET("", creditCardController.Index)
+	creditCardGroup.POST("", creditCardController.Store)
+	creditCardGroup.GET("/:id", creditCardController.Show)
 
-	creditCardGroup.PUT("/:id", middleware.Auth, creditCardController.Update)
-	creditCardGroup.PATCH("/:id", middleware.Auth, creditCardController.Update)
+	creditCardGroup.PUT("/:id", creditCardController.Update)
+	creditCardGroup.PATCH("/:id", creditCardController.Update)
 
-	creditCardGroup.DELETE("/:id", middleware.Auth, creditCardController.Destroy)
+	creditCardGroup.DELETE("/:id", creditCardController.Destroy)
 }

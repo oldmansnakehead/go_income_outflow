@@ -16,15 +16,16 @@ func accountRoutes(r *gin.Engine, db *gorm.DB) {
 	accountController := controller.NewAccountController(accountService)
 
 	accountGroup := r.Group("/accounts")
-	accountGroup.GET("", middleware.Auth, accountController.Index)
-	accountGroup.POST("", middleware.Auth, accountController.Store)
-	accountGroup.GET("/:id", middleware.Auth, accountController.Show)
+	accountGroup.Use(middleware.Auth)
+	accountGroup.GET("", accountController.Index)
+	accountGroup.POST("", accountController.Store)
+	accountGroup.GET("/:id", accountController.Show)
 
-	accountGroup.PUT("/:id", middleware.Auth, accountController.Update)
-	accountGroup.PATCH("/:id", middleware.Auth, accountController.Update)
+	accountGroup.PUT("/:id", accountController.Update)
+	accountGroup.PATCH("/:id", accountController.Update)
 
-	accountGroup.DELETE("/:id", middleware.Auth, accountController.Destroy)
+	accountGroup.DELETE("/:id", accountController.Destroy)
 
-	accountGroup.GET("/currencies", middleware.Auth, accountController.GetCurrencies)
-	accountGroup.GET("/total_amount", middleware.Auth, accountController.GetTotalAmount)
+	accountGroup.GET("/currencies", accountController.GetCurrencies)
+	accountGroup.GET("/total_amount", accountController.GetTotalAmount)
 }

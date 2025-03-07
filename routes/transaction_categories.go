@@ -16,12 +16,13 @@ func transactionCategoryRoutes(r *gin.Engine, db *gorm.DB) {
 	transactionCategoryController := controller.NewTransactionCategoryController(transactionCategoryService)
 
 	transactionCategoryGroup := r.Group("/transaction_categories")
-	transactionCategoryGroup.GET("", middleware.Auth, transactionCategoryController.Index)
-	transactionCategoryGroup.POST("", middleware.Auth, transactionCategoryController.Store)
-	transactionCategoryGroup.GET("/:id", middleware.Auth, transactionCategoryController.Show)
+	transactionCategoryGroup.Use(middleware.Auth)
+	transactionCategoryGroup.GET("", transactionCategoryController.Index)
+	transactionCategoryGroup.POST("", transactionCategoryController.Store)
+	transactionCategoryGroup.GET("/:id", transactionCategoryController.Show)
 
-	transactionCategoryGroup.PUT("/:id", middleware.Auth, transactionCategoryController.Update)
-	transactionCategoryGroup.PATCH("/:id", middleware.Auth, transactionCategoryController.Update)
+	transactionCategoryGroup.PUT("/:id", transactionCategoryController.Update)
+	transactionCategoryGroup.PATCH("/:id", transactionCategoryController.Update)
 
-	transactionCategoryGroup.DELETE("/:id", middleware.Auth, transactionCategoryController.Destroy)
+	transactionCategoryGroup.DELETE("/:id", transactionCategoryController.Destroy)
 }
