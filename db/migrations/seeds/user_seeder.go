@@ -36,7 +36,8 @@ func UserSeeder(db *gorm.DB) error {
 		}
 	}
 
-	repo := repository.NewUserRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+	repo := repository.NewUserRepository(db, refreshTokenRepo)
 	userService := service.NewUserService(repo)
 
 	for _, data := range items {

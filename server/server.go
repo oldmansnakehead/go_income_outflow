@@ -6,6 +6,7 @@ import (
 	"go_income_outflow/routes"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,12 @@ func Start() {
 			log.Fatal("Error loading .env file")
 		}
 	}
+
+	loc, err := time.LoadLocation(os.Getenv("TZ"))
+	if err != nil {
+		log.Fatalf("Error loading time zone: %v", err)
+	}
+	time.Local = loc // ตั้งค่าโซนเวลาให้กับแอปพลิเคชัน
 
 	db := db.ConnectDB()
 	migrations.Migrate()

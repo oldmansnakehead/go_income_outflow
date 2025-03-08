@@ -22,6 +22,7 @@ func Migrate() {
 		&entities.CreditCard{},
 		&entities.TransactionCategory{},
 		&entities.Transaction{},
+		&entities.RefreshToken{},
 	); err != nil {
 		tx.Rollback()
 		panic(err)

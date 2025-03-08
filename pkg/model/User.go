@@ -1,16 +1,11 @@
 package model
 
-import "time"
-
 type (
 	User struct {
-		ID        uint
-		CreatedAt time.Time
-		UpdatedAt time.Time
+		ID uint `json:"id"`
 
-		Email    string
-		Password string
-		Name     string
+		Email string `json:"email"`
+		Name  string `json:"name"`
 	}
 
 	UserLoginRequest struct {

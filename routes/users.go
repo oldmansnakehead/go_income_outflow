@@ -11,12 +11,17 @@ import (
 )
 
 func userRoutes(r *gin.Engine, db *gorm.DB) {
-	userRepo := repository.NewUserRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+
+	userRepo := repository.NewUserRepository(db, refreshTokenRepo)
 	userService := service.NewUserService(userRepo)
 	userController := controller.NewUserController(userService)
 
 	userGroup := r.Group("/users")
+	userGroup.GET("/refresh_token", userController.RefreshToken)
+
 	userGroup.POST("", userController.Store)
-	userGroup.POST("/login", middleware.Auth, userController.Login)
+	userGroup.POST("/login", userController.Login)
+	userGroup.POST("/logout", middleware.Auth, userController.Logout)
 	userGroup.POST("/test-auth", middleware.Auth, userController.TestAuth)
 }

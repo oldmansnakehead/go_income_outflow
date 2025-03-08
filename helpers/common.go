@@ -159,3 +159,47 @@ func AuthUser(ctx *gin.Context) (*entities.User, error) {
 	// คืนค่า pointer ของ user
 	return &userObj, nil
 }
+
+func ExtractJWT(c *gin.Context) string {
+	tokenString := c.GetHeader("Authorization")
+	if tokenString != "" {
+		if strings.HasPrefix(tokenString, "Bearer ") {
+			return strings.TrimPrefix(tokenString, "Bearer ") // ตัด Bearer ออกจาก prefix
+		}
+		return tokenString
+	}
+
+	tokenString, err := c.Cookie("Authorization")
+	if err == nil {
+		return tokenString
+	}
+
+	tokenString = c.Query("token")
+	if tokenString != "" {
+		return tokenString
+	}
+
+	return ""
+}
+
+func ExtractRefreshToken(c *gin.Context) string {
+	tokenString := c.GetHeader("RefreshToken")
+	if tokenString != "" {
+		if strings.HasPrefix(tokenString, "Bearer ") {
+			return strings.TrimPrefix(tokenString, "Bearer ") // ตัด Bearer ออกจาก prefix
+		}
+		return tokenString
+	}
+
+	tokenString, err := c.Cookie("RefreshToken")
+	if err == nil {
+		return tokenString
+	}
+
+	tokenString = c.Query("refresh_token")
+	if tokenString != "" {
+		return tokenString
+	}
+
+	return ""
+}
