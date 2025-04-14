@@ -18,10 +18,10 @@ import (
 type (
 	UserControllerUseCase interface {
 		common.ControllerUseCase
-		TestAuth(ctx *gin.Context)
 		Login(ctx *gin.Context)
 		Logout(ctx *gin.Context)
 		RefreshToken(ctx *gin.Context)
+		Profile(ctx *gin.Context)
 	}
 	userController struct {
 		service service.UserServiceUseCase
@@ -123,7 +123,7 @@ func (u *userController) Logout(ctx *gin.Context) {
 	})
 }
 
-func (uc *userController) TestAuth(ctx *gin.Context) {
+func (uc *userController) Profile(ctx *gin.Context) {
 	user, _ := ctx.Get("user")
 
 	ctx.JSON(http.StatusOK, gin.H{

@@ -30,8 +30,36 @@ func Start() {
 	db := db.ConnectDB()
 	migrations.Migrate()
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
+	/* corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true */
+
+	corsConfig := cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:3000", // สำหรับ development
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+			"X-Requested-With",
+			"auth.refresh-token",
+			"auth.token",
+		},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true, // จำเป็นหากใช้ cookies หรือ authentication headers
+		MaxAge:           12 * time.Hour,
+	}
+
+	/* corsConfig := cors.Config{
+		AllowOrigins:     []string{"*"}, // ไม่สามารถใช้ร่วมกับ AllowCredentials = true
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "RefreshToken"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false, // ต้องเป็น false เมื่อใช้ AllowOrigins = ["*"]
+		MaxAge:           12 * time.Hour,
+	} */
 
 	r := gin.Default()
 	r.Use(cors.New(corsConfig))

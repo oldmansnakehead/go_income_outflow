@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"go_income_outflow/entities"
+	"io"
 	"strings"
 	"time"
 
@@ -183,22 +186,93 @@ func ExtractJWT(c *gin.Context) string {
 }
 
 func ExtractRefreshToken(c *gin.Context) string {
-	tokenString := c.GetHeader("RefreshToken")
+	/* fmt.Println("=== DEBUG: Headers ===")
+	for key, values := range c.Request.Header {
+		fmt.Printf("Header: %s = %v\n", key, values)
+	}
+
+	// Log ทุก cookies ที่ส่งมา
+	fmt.Println("=== DEBUG: Cookies ===")
+	for _, cookie := range c.Request.Cookies() {
+		fmt.Printf("Cookie: %s = %s\n", cookie.Name, cookie.Value)
+	}
+
+	// Log query parameters
+	fmt.Println("=== DEBUG: Query Parameters ===")
+	for key, values := range c.Request.URL.Query() {
+		fmt.Printf("Query: %s = %v\n", key, values)
+	}
+
+	fmt.Println("--- Query Parameters ---")
+	for name, values := range c.Request.URL.Query() {
+		for _, value := range values {
+			fmt.Printf("%s: %s\n", name, value)
+		}
+	}
+
+	if err := c.Request.ParseForm(); err == nil {
+		fmt.Println("--- Form Data ---")
+		for name, values := range c.Request.PostForm {
+			for _, value := range values {
+				fmt.Printf("%s: %s\n", name, value)
+			}
+		}
+	}
+
+	if strings.Contains(c.GetHeader("Content-Type"), "application/json") {
+		bodyBytes, _ := io.ReadAll(c.Request.Body)
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) // Reset body
+		fmt.Println("--- Request Body ---")
+		fmt.Println(string(bodyBytes))
+	}
+
+	// Log request method และ content type
+	fmt.Printf("=== DEBUG: Request Method = %s, Content-Type = %s ===\n",
+		c.Request.Method, c.ContentType()) */
+
+	///////////////////////
+
+	/* tokenString := c.GetHeader("RefreshToken")
 	if tokenString != "" {
 		if strings.HasPrefix(tokenString, "Bearer ") {
 			return strings.TrimPrefix(tokenString, "Bearer ") // ตัด Bearer ออกจาก prefix
 		}
 		return tokenString
-	}
+	} */
 
 	tokenString, err := c.Cookie("RefreshToken")
 	if err == nil {
 		return tokenString
 	}
 
-	tokenString = c.Query("refresh_token")
+	tokenString, err = c.Cookie("auth.refresh-token")
+	if err == nil {
+		return tokenString
+	}
+
+	/* tokenString = c.Query("refresh_token")
 	if tokenString != "" {
 		return tokenString
+	} */
+
+	/* tokenString, err = c.Cookie("auth.refresh-token")
+	if err == nil && tokenString != "" {
+		return tokenString
+	} */
+
+	if c.Request.Method == "POST" && (c.ContentType() == "application/json" || strings.Contains(c.ContentType(), "application/json")) {
+		var body struct {
+			RefreshToken string `json:"refresh_token"` // ต้องตรงกับ refreshRequestTokenPointer ใน nuxt auth
+		}
+		// อ่านและ reset request body
+		bodyBytes, err := io.ReadAll(c.Request.Body)
+		if err == nil {
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+			if err := json.Unmarshal(bodyBytes, &body); err == nil && body.RefreshToken != "" {
+				return body.RefreshToken
+			}
+		}
 	}
 
 	return ""

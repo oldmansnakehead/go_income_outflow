@@ -18,10 +18,10 @@ func userRoutes(r *gin.Engine, db *gorm.DB) {
 	userController := controller.NewUserController(userService)
 
 	userGroup := r.Group("/users")
-	userGroup.GET("/refresh_token", userController.RefreshToken)
+	userGroup.POST("/refresh_token", userController.RefreshToken)
 
 	userGroup.POST("", userController.Store)
 	userGroup.POST("/login", userController.Login)
 	userGroup.POST("/logout", middleware.Auth, userController.Logout)
-	userGroup.POST("/test-auth", middleware.Auth, userController.TestAuth)
+	userGroup.GET("/profile", middleware.Auth, userController.Profile)
 }

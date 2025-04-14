@@ -50,6 +50,8 @@ func (rc *RefreshClaims) JwtString() (refreshTokenString string, err error) {
 func ExtractRefreshClaims(c *gin.Context, option ...jwt.ParserOption) (*RefreshClaims, error) {
 	tokenString := helpers.ExtractRefreshToken(c)
 
+	fmt.Println(tokenString, "-------------------------------")
+
 	// not before เช็คตรงนี้ด้วย
 	token, err := jwt.ParseWithClaims(tokenString, &RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -58,18 +60,22 @@ func ExtractRefreshClaims(c *gin.Context, option ...jwt.ParserOption) (*RefreshC
 		return []byte(os.Getenv("REFRESH_SECRET_KEY")), nil
 	}, option...)
 
+	fmt.Println(token, "++++++++++++++++++++++++++++++++++++++++++")
+
 	if err != nil {
 		return nil, fmt.Errorf("invalid refresh token: %v", err)
 	}
 
 	rc, ok := token.Claims.(*RefreshClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid refresh token: %v", "invlid claims")
+		return nil, fmt.Errorf("invalid refresh token: %v", "invalid claims")
 	}
 
 	if rc.IsExpired() {
 		return nil, fmt.Errorf("invalid refresh token: %v", "expired")
 	}
+
+	// fmt.Println(rc, "**************************************************************")
 
 	return rc, nil
 }
